@@ -11,7 +11,6 @@
 // --------------------------------------
 int main()
 {
-    // init network
     if (initNetwork() == 1)
     {
         printf("Error: error in initialization of the network.\n");
@@ -20,13 +19,8 @@ int main()
     else
         printf("Network initialized successfuly. \n");
 
-    // print data
     printData();
-
-    // train network
     train();
-
-    // test
     test();
 
     return 0;

@@ -118,7 +118,7 @@ void forwardProp(void)
                 else
                     layer[i].neuron[j].actv = layer[i].neuron[j].z;
             }
-            else // Sigmoid Activation function for Output Layer
+            else
             {
                 layer[i].neuron[j].actv = 1/(1+exp(-layer[i].neuron[j].z));
             }
@@ -156,12 +156,11 @@ void backProp(int p)
         for(int k=0; k < nbNeurons[nbLayers-2]; k++)
         {
             float dZ = layer[nbLayers-1].neuron[j].dZ;
-            float actv = layer[nbLayers-2].neuron[k].actv;
-
-            layer[nbLayers-2].neuron[k].dWeights[j] = dZ * actv;
-
+            float a = layer[nbLayers-2].neuron[k].actv;
             float w = layer[nbLayers-2].neuron[k].weights[j];
-            layer[nbLayers-2].neuron[k].dActv =  w * dZ;
+
+            layer[nbLayers-2].neuron[k].dWeights[j] = dZ * a;
+            layer[nbLayers-2].neuron[k].dActv =  dZ * w;
         }
 
         layer[nbLayers-1].neuron[j].dBias = layer[nbLayers-1].neuron[j].dZ;
@@ -184,13 +183,14 @@ void backProp(int p)
             for(int k=0; k < nbNeurons[i-1];k++)
             {
                 float dZ = layer[i].neuron[j].dZ;
-                Neuron n2 = layer[i-1].neuron[k];
+                float a = layer[i-1].neuron[k].actv;
+                float w = layer[i-1].neuron[k].weights[j];
 
-                layer[i-1].neuron[k].dWeights[j] = dZ * n2.actv;
+                layer[i-1].neuron[k].dWeights[j] = dZ * a;
 
                 if(i>1)
                 {
-                    layer[i-1].neuron[k].dActv = n2.weights[j] * dZ;
+                    layer[i-1].neuron[k].dActv = w * dZ;
                 }
             }
 
