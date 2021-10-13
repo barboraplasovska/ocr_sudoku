@@ -15,9 +15,10 @@ void sudokuGrid(char str[])
             char c = str[y * 9 + x];
             if (c == '.')
                 c = '0';
-            else if (c < '1' || c > '9')
-                return;
-            *(*(grid+y) + x) = c - '0';
+            //else if (c < '1' || c > '9')
+               // return;
+            else if (c >= 1 && c <= 9)
+                *(*(grid+y) + x) = c - '0';
         }
     }
 }
@@ -25,14 +26,10 @@ void sudokuGrid(char str[])
 /// <summary>
 /// Prints the grid on the console
 /// </summary>
-/*void finalProduct()
+void finalProduct()
 {
-    printf("%c",'a');
     for (int y = 0; y < 9; y++)
     {
-        if (y % 3 == 0)
-            printf("-------------------------------");
-
         for (int x = 0; x < 9; x++)
         {
            // if (x % 3 == 0)
@@ -40,14 +37,13 @@ void sudokuGrid(char str[])
 
             int c = *(*(grid+y) + x);
             if (c == 0)
-                printf("   ");
+                printf("  ");
             else
                 printf(" %i ",c);
         }
         //printf('%c','|');
     }
-    printf("-------------------------------");
-} */
+} 
 
 /// <summary>
 /// Returns true if the given column is solved
@@ -162,7 +158,7 @@ int already_in_line(int y, int val)
 {
     for (int x = 0; x < 9; x++)
     {
-        if (*(*(grid+y) + x)== val)
+        if (*(*(grid+y) + x) == val)
             return 1;
     }
 
@@ -211,7 +207,7 @@ int solve_rec(int x, int y)
     SetNextCoords(&nextX, &nextY);
 
     if (*(*(grid+y) + x) != 0)
-        return solve_rec(nextX, nextY);
+        return solve_rec(nextX,nextY);
 
     for (int i = 1; i <= 9; i++)
     {

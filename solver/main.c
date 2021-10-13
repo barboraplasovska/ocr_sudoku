@@ -16,8 +16,7 @@ int main()
 
     sudokuGrid(string);
     solve();
-    //finalProduct();
-    //printf("a");
+    finalProduct();
 
 
     return 0;
