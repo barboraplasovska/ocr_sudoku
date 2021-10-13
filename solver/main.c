@@ -1,13 +1,24 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "functions.h"
 
-    char fileName[];
-    scanf("%s", fileName);
+int main()
+{
+    char fileName[] = "C:/Users/Elsa/Desktop/S3/OCR/ocr_sudoku/solver/grid_00";
+    //scanf("%s", fileName);
     FILE *in_file  = fopen(fileName,"r+");
     char string[102];
     if (in_file != NULL)
     {
         fgets(string, 101, in_file);
     }
+    fclose(in_file);
 
-    finalProduct(sudokuGrid(string));
+    sudokuGrid(string);
+    solve();
+    //finalProduct();
+    //printf("a");
+
+
+    return 0;
+}
