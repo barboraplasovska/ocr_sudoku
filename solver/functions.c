@@ -9,14 +9,12 @@ int* p = &grid[0][0];
 ///<summary>
 ///Creates the sudoku grid from a string
 ///</summary>
-void load()
+void load(char path[])
 {   
     char c;
     int x = 0;
     int y = 0;
-    char fileName[50];
-    scanf("%s",fileName);
-    FILE* f = fopen(fileName, "r");
+    FILE* f = fopen(path, "r");
     while ((c = fgetc(f))!= EOF)
     {
         if ((c >= '1' && c <= '9' )|| c == '.')
@@ -40,9 +38,30 @@ void load()
 /// <summary>
 /// Prints the grid on the console
 /// </summary>
-void finalProduct()
+void finalProduct(char path[])
 {
-    FILE* f = fopen("/Users/el/Documents/ocr_sudoku/solver/grid_00.result", "w");
+    char newpath[8] = ".result";
+    char str3[100];
+  
+    int i = 0, j = 0;
+  
+    // Insert the first string in the new string
+    while (path[i] != '\0') {
+        str3[j] = path[i];
+        i++;
+        j++;
+    }
+  
+    // Insert the second string in the new string
+    i = 0;
+    while (newpath[i] != '\0') {
+        str3[j] = newpath[i];
+        i++;
+        j++;
+    }
+
+    str3[j] = '\0';
+    FILE* f = fopen(str3, "w");
     for (int y = 0; y < 9; y++)
     {
         if ((y == 3) || (y==6))

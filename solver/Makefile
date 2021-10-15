@@ -1,8 +1,8 @@
 LDFLAGS =
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O1
 
-main: main.c functions.c
-	$(CC) $(LDFLAGS) -o main main.c functions.o -lm
+solver: main.c functions.c
+	$(CC) $(LDFLAGS) -o solver main.c functions.c -lm
 
 functions.o: functions.c
 	$(CC) $(CFLAGS) -c functions.c functions.h
