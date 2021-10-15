@@ -1,26 +1,40 @@
 #include <stdio.h>
 
 
+
 int grid[9][9];
+int* p = &grid[0][0];
+
 
 ///<summary>
 ///Creates the sudoku grid from a string
 ///</summary>
-void sudokuGrid(char str[])
-{
-    for (int y = 0; y < 9; y++)
+void load()
+{   
+    char c;
+    int x = 0;
+    int y = 0;
+    char fileName[50];
+    scanf("%s",fileName);
+    FILE* f = fopen(fileName, "r");
+    while ((c = fgetc(f))!= EOF)
     {
-        for (int x = 0; x < 9; x++)
+        if ((c >= '1' && c <= '9' )|| c == '.')
         {
-            char c = str[y * 9 + x];
             if (c == '.')
                 c = '0';
-            //else if (c < '1' || c > '9')
-               // return;
-            else if (c >= 1 && c <= 9)
-                *(*(grid+y) + x) = c - '0';
+            *(p + y*9 + x) = c - '0';
+            x+=1;
+        }   
+        if (x == 9)
+        {
+            y += 1;
+            x = 0;
         }
-    }
+    }    
+
+    
+    fclose(f);
 }
 
 /// <summary>
@@ -28,21 +42,28 @@ void sudokuGrid(char str[])
 /// </summary>
 void finalProduct()
 {
+    FILE* f = fopen("/Users/el/Documents/ocr_sudoku/solver/grid_00.result", "w");
     for (int y = 0; y < 9; y++)
     {
-        for (int x = 0; x < 9; x++)
+        if ((y == 3) || (y==6))
         {
-           // if (x % 3 == 0)
-               // printf('%c','|');
-
-            int c = *(*(grid+y) + x);
-            if (c == 0)
-                printf("  ");
-            else
-                printf(" %i ",c);
+           fprintf(f,"\n");
         }
-        //printf('%c','|');
+        
+        for (int x = 0; x < 9 ; x++)
+        {   
+            int val = *(p + y*9 + x);
+            if (x == 8)
+                fprintf(f,"%i\n",val);
+            else if ((x == 2)||(x==5))
+                fprintf(f,"%i ",val);
+            else
+                fprintf(f,"%i",val);
+        }
+        
     }
+    fclose(f);
+    
 } 
 
 /// <summary>
@@ -56,7 +77,7 @@ int is_column_solved(int x)
         int found = 0;
         for (int y = 0; !found && y < 9; y++)
         {
-            if (*(*(grid+y) + x) == i)
+            if (*(p + y*9 + x) == i)
                 found = 1;
         }
 
@@ -78,7 +99,7 @@ int is_line_solved(int y)
         int found = 0;
         for (int x = 0; !found && x < 9; x++)
         {
-            if (*(*(grid+y) + x) == i)
+            if (*(p + y*9 + x) == i)
                 found = 1;
         }
 
@@ -106,7 +127,9 @@ int is_square_solved(int x, int y)
         {
             for (int X = 0; !found && X < 3; X++)
             {
-                if (*(*(grid+Y + y * 3) + X + x * 3) == i)
+                int v1 = Y + y * 3;
+                int v2 = X + x * 3;
+                if (*(p + v1*9 + v2) == i)
                     found = 1;
             }
         }
@@ -129,7 +152,6 @@ int is_solved()
         if (!is_column_solved(i) || !is_line_solved(i) || !is_square_solved(i / 3, i % 3))
             return 0;
     }
-
     return 1;
 }
 
@@ -142,7 +164,7 @@ int already_in_column(int x, int val)
 {
     for (int y = 0; y < 9; y++)
     {
-        if (*(*(grid+y) + x) == val)
+        if (*(p + y*9 + x) == val)
             return 1;
     }
 
@@ -158,7 +180,7 @@ int already_in_line(int y, int val)
 {
     for (int x = 0; x < 9; x++)
     {
-        if (*(*(grid+y) + x) == val)
+        if (*(p + y*9 + x) == val)
             return 1;
     }
 
@@ -180,7 +202,9 @@ int already_in_square(int x, int y, int val)
     {
         for (int X = 0; X < 3; X++)
         {
-            if (*(*(grid+Y + y * 3) + X + x * 3) == val)
+            int v1 = Y + y * 3;
+            int v2 = X + x * 3;
+            if (*(p + v1*9 + v2) == val)
                 return 1;
         }
     }
@@ -206,17 +230,19 @@ int solve_rec(int x, int y)
     int nextY = y;
     SetNextCoords(&nextX, &nextY);
 
-    if (*(*(grid+y) + x) != 0)
+    if (*(p + y*9 + x) != 0)
         return solve_rec(nextX,nextY);
 
     for (int i = 1; i <= 9; i++)
     {
-        if (!already_in_column(x, i) && !already_in_line(y, i) && !already_in_square(x, y, i))
+        if (!already_in_column(x, i) &&
+         !already_in_line(y, i) && 
+         !already_in_square(x, y, i))
         {
-            *(*(grid+y) + x) = i;
+            *(p + y*9 + x) = i;
             if (solve_rec(nextX, nextY))
                 return 1;
-            *(*(grid+y) + x) = 0;
+            *(p + y*9 + x) = 0;
         }
     }
 

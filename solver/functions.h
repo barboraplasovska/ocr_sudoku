@@ -3,7 +3,7 @@
 
 
 
-void sudokuGrid(char str[]);
+void load();
 void finalProduct();
 int is_column_solved(int x);
 int is_line_solved(int y);

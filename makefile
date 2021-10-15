@@ -20,6 +20,7 @@ clean:
 	${RM} ${OBJ}   # remove object files
 	${RM} ${DEP}   # remove dependency files
 	${RM} main     # remove main program
+	${RM} *.result # remove result
 
 -include ${DEP}
 
