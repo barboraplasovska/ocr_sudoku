@@ -11,5 +11,5 @@ functions.o: functions.c
 clean:
 	rm -f *.o
 	rm -f *.gch
-	rm  main
+	rm  solver
 	rm  *.result
