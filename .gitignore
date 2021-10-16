@@ -36,6 +36,8 @@
 *.x86_64
 *.hex
 main
+solver
+xor
 
 
 # Debug files
