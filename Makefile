@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -O1
 
 # SOLVER
 solver: solver.c functions.o
-	$(CC) $(LDFLAGS) -o xor solver.c functions.o -lm
+	$(CC) $(LDFLAGS) -o solver solver.c functions.o -lm
 
 functions.o: functions.c
 	$(CC) $(CFLAGS) -c functions.c functions.h
@@ -26,10 +26,11 @@ neuron.o: neuron.c
 
 # remove object files and executable when user executes "make clean"
 clean:
-	rm -f *.o
-	rm -f *.gch
-	rm *.result
-	rm  xor
-	rm main
+	${RM} -f *.o
+	${RM} -f *.gch
+	${RM} *.result
+	${RM}  xor
+	${RM} main
+	${RM} solver
 
 # END
