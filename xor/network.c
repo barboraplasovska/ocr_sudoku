@@ -1,3 +1,7 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif // defines getDelim
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +13,7 @@
 // --------------VARIABLES---------------
 
 Layer *layer = (void *)0; 
-int nbLayers = 3;
+const int nbLayers = 3;
 int nbNeurons[3] = {2,2,1};
 float lr = 0.8;
 float *cost;
@@ -28,19 +32,17 @@ int n = 1;
 int initNetwork(void)
 {
     // init Layers
-    int i=0,j=0;
-    int k=0;
     layer = (Layer*) malloc(nbLayers * sizeof(layer));
 
     cost = (float *) malloc(nbNeurons[nbLayers-1] * sizeof(float));
     memset(cost,0,nbNeurons[nbLayers-1]*sizeof(float));
 
-    for(i=0;i<nbLayers;i++)
+    for(int i=0;i<nbLayers;i++)
     {
         layer[i] = initLayer(nbNeurons[i]);      
         layer[i].nbNeurons = nbNeurons[i];
 
-        for(j=0;j<nbNeurons[i];j++)
+        for(int j=0;j<nbNeurons[i];j++)
         {
             if(i < (nbLayers-1)) 
             {
@@ -49,19 +51,25 @@ int initNetwork(void)
         }
     }
 
-    // init Biases
     if(layer == (void *)0) 
     {
         return 1; // ERROR -> No layers in the network
     }
 
-    for(i=0;i<nbLayers-1;i++)
+    return 0;
+}
+
+void initWeights(void)
+{
+    // init Weights and Biases
+
+    for(int i=0;i<nbLayers-1;i++)
     {
 
-        for(j=0;j<nbNeurons[i];j++)
+        for(int j=0;j<nbNeurons[i];j++)
         {
 
-            for(k=0;k<nbNeurons[i+1];k++)
+            for(int k=0;k<nbNeurons[i+1];k++)
             {
                 double rnd = ((double)rand())/((double)RAND_MAX);
                 layer[i].neuron[j].weights[k] = rnd;
@@ -76,13 +84,11 @@ int initNetwork(void)
         }
     }
 
-    for (j=0; j<nbNeurons[nbLayers-1]; j++)
+    for (int j=0; j<nbNeurons[nbLayers-1]; j++)
     {
         double rnd = ((double)rand())/((double)RAND_MAX);
         layer[nbLayers-1].neuron[j].bias = rnd;
     }
-
-    return 0;
 }
 
 // FEED INPUT
@@ -237,6 +243,7 @@ void train(void)
             updateWeights();
         }
     }
+
 }
 
 // PRINT DATA
@@ -265,7 +272,7 @@ void test(void)
 {
     printf("TEST\n");
     printf("\n");
-    while(1)
+    for (int n = 0; n < 4; n++)
     {
         printf("Enter input to test:\n");
 
@@ -279,3 +286,193 @@ void test(void)
         printf("\n");
     }
 }
+
+// SAVE WEIGHTS
+void saveWeights()
+{
+    FILE *fptr;
+    fptr = fopen("weights.txt","w");
+
+    if(fptr == NULL)
+    {
+        printf("Error!");   
+        exit(1);             
+    }
+
+
+    for(int i = 0 ;i < nbLayers-1;i++)
+    {
+        for(int j=0; j < nbNeurons[i];j++)
+        {
+            for(int k=0; k < nbNeurons[i+1];k++)
+            {
+                // weights
+                float w = layer[i].neuron[j].weights[k];
+                fprintf(fptr,"%f,",w);
+            }
+            fprintf(fptr,"|");
+
+            // Bias
+            float b = layer[i].neuron[j].bias;
+            fprintf(fptr,"%f+\n", b);
+        }
+        if (i == nbLayers-2)
+            fprintf(fptr,"+++");
+        else
+            fprintf(fptr,"+\n");
+    }
+    fclose(fptr);
+}
+
+void reinitArr(char *temp)
+{
+    for (size_t i = 0; i < 8; i++)
+    {
+        if (i == 1)
+            temp[i] = '.';
+        else
+            temp[i] = '0';
+    }
+}
+
+// LOAD WEIGHTS
+
+void loadWeights(char *filePath)
+{
+    FILE *fptr = fopen(filePath,"r");
+
+    if (fptr == NULL)
+    {
+       printf("Error! opening file");
+       exit(1);
+    }
+
+    char *l;
+    int read;
+    size_t len;
+
+
+    int lay = 0;
+    size_t weightInd = 0;
+    size_t neuronInd = 0;
+    size_t tempInd = 0;
+    size_t i = 0;
+    int negative = 0;
+    char *temp;
+    temp = (char *) malloc(8 * sizeof(char));
+
+    while ((read = getdelim(&l, &len, '\n', fptr)) != EOF)
+    {
+        if (l[0] == '+' && l[1] == '+')
+        {
+            break;
+        }
+        else
+        {
+            if(l[0] == '+')
+            {
+                if (l[1] == '\n')
+                {
+                    // next layer
+                    lay++;
+                    weightInd = 0;
+                    neuronInd = 0;
+                    tempInd = 0;
+                    i = 0;
+                    negative = 0;
+                    reinitArr(temp);
+                }
+            }
+            else
+            {
+                i = 0;
+                tempInd = 0;
+                // weights
+                while (i < len && l[i] != '|')
+                {
+                    if (l[i] == ',')
+                    {
+                        //save temp
+                        double f = atof(temp);
+                        if (negative == 1)
+                        {
+                            f *= -1.0;
+                        }
+                        printf("layer[%d].neuron[%zu].weights[%zu] = %s\n", lay, neuronInd, weightInd, temp);
+                        layer[lay].neuron[neuronInd].weights[weightInd] = (float)f;
+                        weightInd++;
+                    
+                        // empty temp
+                        reinitArr(temp);
+                        tempInd = 0;
+                        negative = 0;
+                    }
+                    else
+                    {
+                        if (l[i] == '-')
+                            negative = 1;
+                        else 
+                        {
+                            temp[tempInd] = l[i];
+                            tempInd++;
+                        }
+                    }   
+                    i++;
+                }
+                i++;
+                tempInd = 0;
+                reinitArr(temp);
+                
+                // bias
+                while (i < len && l[i] != '\n')
+                {
+                    if (l[i] == '+')
+                    {
+                        // save temp
+                        double f = atof(temp);
+                        if (negative == 1)
+                        {
+                            f *= -1.0;
+                        }
+                        printf("layer[%d].neuron[%zu].bias = %s\n", lay, neuronInd, temp);
+                        layer[lay].neuron[neuronInd].bias = (float)f;
+
+                        // empty temp
+                        reinitArr(temp);
+                        tempInd = 0;
+                        negative = 0;
+                    }
+                    else
+                    {
+                        if (l[i] == '-')
+                            negative = 1;
+                        else 
+                        {
+                            temp[tempInd] = l[i];
+                            tempInd++;
+                        }
+                    }
+                    i++;
+                }
+                // we go to the next neuron
+                weightInd = 0;
+                negative = 0;
+                neuronInd++;
+            }
+        }
+
+    }
+
+    layer[lay+1].nbNeurons = 1;
+
+    fclose(fptr);
+    free(temp);
+}
+
+void dinit()
+{
+    // free all the structures
+
+    free(layer);
+}
+

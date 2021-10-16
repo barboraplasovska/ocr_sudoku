@@ -1,8 +1,9 @@
 LDFLAGS = 
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O1
 
-main: main.c network.o layer.o neuron.o
-	$(CC) $(LDFLAGS) -o main main.c network.o layer.o neuron.o -lm
+# XOR
+xor: main.c network.o layer.o neuron.o
+	$(CC) $(LDFLAGS) -o xor main.c network.o layer.o neuron.o -lm
 
 network.o: network.c 
 	$(CC) $(CFLAGS) -c network.c network.h
@@ -17,4 +18,4 @@ neuron.o: neuron.c
 clean:
 	rm -f *.o
 	rm -f *.gch
-	rm  main
+	rm  xor

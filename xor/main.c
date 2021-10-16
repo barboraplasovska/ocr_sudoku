@@ -18,11 +18,19 @@ int main()
     }    
     else
         printf("Network initialized successfuly. \n");
+        
+    initWeights();
+
+    //loadWeights("weights.txt");
 
     printData();
     train();
+    
     test();
+    saveWeights();
 
+    dinit();
+    
     return 0;
 }
 
