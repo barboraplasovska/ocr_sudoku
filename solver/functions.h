@@ -13,7 +13,7 @@ int already_in_column(int x, int val);
 int already_in_line(int y, int val);
 int already_in_square(int x, int y, int val);
 int SetNextCoords(int *nextX,int *nextY);
-int solve_rec(int x, int y);
+int _solve(int x, int y);
 void solve();
 
 

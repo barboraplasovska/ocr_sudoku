@@ -6,9 +6,8 @@ int grid[9][9];
 int* p = &grid[0][0];
 
 
-///<summary>
-///Creates the sudoku grid from a string
-///</summary>
+///Reads the sudoku grid from file 
+///Loads the 2-dimensional matrix grid with the information
 void load(char path[])
 {   
     char c;
@@ -35,9 +34,8 @@ void load(char path[])
     fclose(f);
 }
 
-/// <summary>
-/// Prints the grid on the console
-/// </summary>
+
+/// Writes the grid into a new file "filename.result"
 void finalProduct(char path[])
 {
     char newpath[8] = ".result";
@@ -85,9 +83,8 @@ void finalProduct(char path[])
     
 } 
 
-/// <summary>
+
 /// Returns true if the given column is solved
-/// </summary>
 /// <param name="x"> index of the column</param>
 int is_column_solved(int x)
 {
@@ -107,9 +104,7 @@ int is_column_solved(int x)
     return 1;
 }
 
-/// <summary>
 /// Returns true if the given line is solved
-/// </summary>
 /// <param name="y"> index of the line</param>
 int is_line_solved(int y)
 {
@@ -129,9 +124,7 @@ int is_line_solved(int y)
     return 1;
 }
 
-/// <summary>
 /// Returns true if the 3x3 square containing the given coords is solved
-/// </summary>
 /// <param name="x"> index of the column</param>
 /// <param name="y"> index of the line</param>
 int is_square_solved(int x, int y)
@@ -160,15 +153,13 @@ int is_square_solved(int x, int y)
     return 1;
 }
 
-/// <summary>
 /// Returns true the grid is solved
-/// Here is a exemple of a solved grid : 435269781682571493197834562826195347374682915951743628519326874248957136763418259
-/// </summary>
 int is_solved()
 {
     for (int i = 0; i < 9; i++)
     {
-        if (!is_column_solved(i) || !is_line_solved(i) || !is_square_solved(i / 3, i % 3))
+        if (!is_column_solved(i) || !is_line_solved(i) || 
+        !is_square_solved(i / 3, i % 3))
             return 0;
     }
     return 1;
@@ -190,9 +181,7 @@ int already_in_column(int x, int val)
     return 0;
 }
 
-/// <summary>
 /// Returns true if the given line already contains the given value
-/// </summary>
 /// <param name="y"> index of the line</param>
 /// <param name="val"> value that must be checked</param>
 int already_in_line(int y, int val)
@@ -206,9 +195,8 @@ int already_in_line(int y, int val)
     return 0;
 }
 
-/// <summary>
-/// Returns true if the 3x3 square containing the given already contains the given value
-/// </summary>
+/// Returns true if the 3x3 square containing the given 
+/// already contains the given value
 /// <param name="x"> index of the column</param>
 /// <param name="y"> index of the line</param>
 /// <param name="val"> value that must be checked</param>
@@ -240,7 +228,7 @@ void SetNextCoords(int *nextX,int *nextY)
     }
 }
 
-int solve_rec(int x, int y)
+int _solve(int x, int y)
 {
     if (y >= 9)
         return 1;
@@ -250,7 +238,7 @@ int solve_rec(int x, int y)
     SetNextCoords(&nextX, &nextY);
 
     if (*(p + y*9 + x) != 0)
-        return solve_rec(nextX,nextY);
+        return _solve(nextX,nextY);
 
     for (int i = 1; i <= 9; i++)
     {
@@ -259,7 +247,7 @@ int solve_rec(int x, int y)
          !already_in_square(x, y, i))
         {
             *(p + y*9 + x) = i;
-            if (solve_rec(nextX, nextY))
+            if (_solve(nextX, nextY))
                 return 1;
             *(p + y*9 + x) = 0;
         }
@@ -268,10 +256,8 @@ int solve_rec(int x, int y)
     return 0;
 }
 
-/// <summary>
 /// Solves the grid
-/// </summary>
 void solve()
 {
-    solve_rec(0, 0);
+    _solve(0, 0);
 }
