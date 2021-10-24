@@ -278,7 +278,8 @@ void test(void)
 
         for(int i=0; i < nbNeurons[0] ;i++)
         {
-            scanf("%f",&layer[0].neuron[i].actv);
+            int v = scanf("%f",&layer[0].neuron[i].actv);
+            (void)v;
         }
         forwardProp();
 

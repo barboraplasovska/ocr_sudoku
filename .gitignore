@@ -35,10 +35,6 @@
 *.i*86
 *.x86_64
 *.hex
-main
-solver
-xor
-
 
 # Debug files
 *.dSYM/
@@ -54,4 +50,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-.DS_Store
