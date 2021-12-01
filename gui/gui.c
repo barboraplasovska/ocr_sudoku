@@ -72,14 +72,15 @@ GtkWidget* gtk_image_new_from_sdl_surface(SDL_Surface *surface)
     return image;
 }
 
-void on_choose(GtkButton *button, gpointer* userdata)
+void on_choose(GtkFileChooserButton *button, gpointer* userdata)
 {
-    UI gui = userdata;
-    gui.filename = gtk_file_chooser_get_preview_filename(gui.choose_file_button);
+    UI* gui = userdata;
+    gui.filename = gtk_file_chooser_get_preview_filename(&button);
 }
+
 void on_display(GtkButton *button, gpointer* userdata)
 {
-    UI gui = userdata;
+    UI* gui = userdata;
     gtk_window_close(gui.welcome);
     //open display
     //set image as the chosen image
@@ -91,10 +92,10 @@ void on_process(GtkButton *button,gpointer* userdata)
 {
     //close display
     //open process
-    UI gui = userdata;
+    UI* gui = userdata;
     gtk_window_close (gui.display);
     gui.image_surface = load_image(gui.filename);
-    ApplyBlackAndWhite(gui.image_surface, 180); //change value
+    ApplyBlackAndWhiteAdaptive(gui.image_surface, 180); //change value
     gui.image_surface = RotateSurface(gui.image_surface, 37); //change value
     gtk_image_set_from_image(gui.solvedImage,
         GTK_IMAGE(gtk_image_new_from_sdl_surface(gui.image_surface)));
@@ -105,7 +106,7 @@ void on_solver(GtkButton *button,gpointer* userdata)
 {   
     //get initial grid
     //get solved grid (neural network)
-    UI gui = userdata;
+    UI* gui = userdata;
     //close process
     gtk_window_close(gui.processed);
     //open solve
@@ -118,7 +119,8 @@ void on_solver(GtkButton *button,gpointer* userdata)
     int i = 0, j = 0;
   
     // Insert the first string in the new string
-    while (path[i] != '\0') {
+    while (gui->filepath[i] != '\0') 
+    {
         str3[j] = gui.filepath[i];
         i++;
         j++;
@@ -126,7 +128,8 @@ void on_solver(GtkButton *button,gpointer* userdata)
   
     // Insert the second string in the new string
     i = 0;
-    while (newpath[i] != '\0') {
+    while (newpath[i] != '\0') 
+    {
         str3[j] = newpath[i];
         i++;
         j++;
@@ -141,8 +144,8 @@ void on_solver(GtkButton *button,gpointer* userdata)
 
 void on_save(GtkButton *button,gpointer* userdata)
 {
-    UI gui = userdata;
-    SDL_SaveBMP(gui.solvedImage,"solved.jpeg");
+    UI* gui = userdata;
+    SDL_SaveBMP(gui.image_surface,"solved.jpeg");
 }
 
 /* void on_backDisplay(GtkButton *button,gpointer* userdata)
