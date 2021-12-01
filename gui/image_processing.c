@@ -524,7 +524,7 @@ SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid)
         }
     }
     
-    return emptyGrid
+    return emptyGrid;
 }
 
 SDL_Surface* ShearSurface(SDL_Surface *surface, int angleInDegrees)
