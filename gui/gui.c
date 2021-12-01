@@ -12,7 +12,7 @@ typedef struct UI
     GtkWindow* display;
     GtkWindow* processed;
     GtkWindow* solved;
-    char* filepath; // initial grid
+    char* filepath[]; // initial grid
     gchar*  filename; // path to chosen picture
     SDL_Surface* image_surface;
     //GtkButton* backtoProcessed_button;
@@ -75,7 +75,7 @@ GtkWidget* gtk_image_new_from_sdl_surface(SDL_Surface *surface)
 void on_choose(GtkFileChooserButton *button, gpointer userdata)
 {
     UI* gui = userdata;
-    gui->filename = gtk_file_chooser_get_preview_filename(&button);
+    gui->filename = gtk_file_chooser_get_preview_filename(button);
 }
 
 void on_display(GtkButton *button, gpointer userdata)
@@ -97,9 +97,7 @@ void on_process(GtkButton *button,gpointer userdata)
     gui->image_surface = load_image(gui->filename);
     gui->image_surface = ApplyBlackAndWhite(gui->image_surface, 180); //change value
     gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
-    gtk_image_set_from_image(gui->solvedImage,
-        GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
-    SDL_FreeSurface(gui->image_surface);
+    gui->processedImage = GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
 }
 
 void on_solver(GtkButton *button,gpointer userdata)
@@ -137,15 +135,14 @@ void on_solver(GtkButton *button,gpointer userdata)
 
     int** solvedGrid = FileToMatrix(newpath);
     gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
-    gtk_image_set_from_image(gui->solvedImage,
-        GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
-    SDL_FreeSurface(gui->image_surface);
+    gui->solvedImage = GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface));
 }
 
 void on_save(GtkButton *button,gpointer userdata)
 {
     UI* gui = userdata;
     SDL_SaveBMP(gui->image_surface,"solved.jpeg");
+    SDL_FreeSurface(gui->image_surface);
 }
 
 /* void on_backDisplay(GtkButton *button,gpointer* userdata)
@@ -249,7 +246,7 @@ int main (int argc, char **argv)
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(solved_window, "solved"));
 
     SDL_Surface *image_surface;
-    char* filepath;
+    char* filepath[];
     gchar*  filename; 
 
     UI gui =
