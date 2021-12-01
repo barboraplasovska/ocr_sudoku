@@ -28,7 +28,7 @@ typedef struct UI
     GtkImage* solvedImage; 
 }UI;
 
-GtkWidget* gtk_image_new_from_sdl_surface (SDL_Surface *surface)
+GtkWidget* gtk_image_new_from_sdl_surface(SDL_Surface *surface)
 {
     Uint32 src_format;
     Uint32 dst_format;
@@ -72,13 +72,17 @@ GtkWidget* gtk_image_new_from_sdl_surface (SDL_Surface *surface)
     return image;
 }
 
+void on_choose(GtkButton *button, gpointer* userdata)
+{
+    UI gui = userdata;
+    gui.filename = gtk_file_chooser_get_preview_filename(gui.choose_file_button);
+}
 void on_display(GtkButton *button, gpointer* userdata)
 {
     UI gui = userdata;
     gtk_window_close(gui.welcome);
     //open display
     //set image as the chosen image
-    gui.filename = gtk_file_chooser_get_preview_filename(gui.choose_file_button);
     gtk_image_set_from_file(gui.chosenImage,gui.filename);
 
 }
@@ -193,7 +197,7 @@ int main (int argc, char *argv[])
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
-    if (gtk_builder_add_from_file(window, "welcome_window.glade", &error) == 0)
+    if (gtk_builder_add_from_file(welcome_window, "welcome_window.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
         g_clear_error(&error);
@@ -237,9 +241,9 @@ int main (int argc, char *argv[])
     // GtkButton* backtoWelcome_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoWelcome_button"));
     // GtkButton* backtoProcessed_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoProcessed_button"));
 
-    GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(window, "processed"));
-    GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(window, "input"));
-    GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(window, "solved"));
+    GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(processed_window, "processed"));
+    GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(display_window, "input"));
+    GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(solved_window, "solved"));
 
     UI gui =
     {
@@ -269,6 +273,7 @@ int main (int argc, char *argv[])
     g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), gui);
     g_signal_connect(next_button, "clicked", G_CALLBACK(on_display), gui);
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), gui);
+    g_signal_connect(choose_file_button, "clicked", G_CALLBACK(on_choose), gui);
     // g_signal_connect(backtoDisplay_button,"clicked",G_CALLBACK(on_backDisplay), gui);
     // g_signal_connect(backtoProcessed_button,"clicked",G_CALLBACK(on_backProcessed), gui);
     // g_signal_connect(backtoWelcome_button,"clicked",G_CALLBACK(on_backWelcome), gui);
