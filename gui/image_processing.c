@@ -472,7 +472,7 @@ int** FileToMatrix(char path[])
     return p;
 }
 
-void SaveSolvedGrid(int** oldgrid, int** grid, char path[])
+SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid)
 {
     SDL_Surface* emptyGrid = load_image("EMPTYGRID.jpeg");
     
@@ -524,15 +524,7 @@ void SaveSolvedGrid(int** oldgrid, int** grid, char path[])
         }
     }
     
-    for(int i = 0; i < 9; i++)
-    {
-        SDL_FreeSurface(numbersSolved[i]);
-        SDL_FreeSurface(numbers[i]);
-    }
-    
-    SDL_SaveBMP(emptyGrid, path);
-    
-    SDL_FreeSurface(emptyGrid);
+    return emptyGrid
 }
 
 SDL_Surface* ShearSurface(SDL_Surface *surface, int angleInDegrees)

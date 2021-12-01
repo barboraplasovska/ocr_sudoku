@@ -14,7 +14,7 @@ void InvertColors(SDL_Surface *surface);
 SDL_Surface* RotateSurface(SDL_Surface *surface, double angleInDegrees);
 void EnhanceSurfaceContrast(SDL_Surface *surface, int C);
 int** FileToMatrix(char path[]);
-void SaveSolvedGrid(int** oldgrid, int** grid, char path[]);
+SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid);
 SDL_Surface* ShearSurface(SDL_Surface *surface, int angleInDegrees);
 void loop1 (SDL_Surface *surface,
     int *yt, int *middlet, int *failt, int *possiblet, int *i2t);
