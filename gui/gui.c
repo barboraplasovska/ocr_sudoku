@@ -72,13 +72,13 @@ GtkWidget* gtk_image_new_from_sdl_surface(SDL_Surface *surface)
     return image;
 }
 
-void on_choose(GtkFileChooserButton *button, gpointer* userdata)
+void on_choose(GtkFileChooserButton *button, gpointer userdata)
 {
     UI* gui = userdata;
     gui->filename = gtk_file_chooser_get_preview_filename(&button);
 }
 
-void on_display(GtkButton *button, gpointer* userdata)
+void on_display(GtkButton *button, gpointer userdata)
 {
     UI* gui = userdata;
     gtk_window_close(gui->welcome);
@@ -88,21 +88,21 @@ void on_display(GtkButton *button, gpointer* userdata)
 
 }
 
-void on_process(GtkButton *button,gpointer* userdata)
+void on_process(GtkButton *button,gpointer userdata)
 {
     //close display
     //open process
     UI* gui = userdata;
     gtk_window_close (gui->display);
     gui->image_surface = load_image(gui->filename);
-    ApplyBlackAndWhiteAdaptive(gui->image_surface, 180); //change value
+    gui->image_surface = ApplyBlackAndWhite(gui->image_surface, 180); //change value
     gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
-    gtk_image_set_from_image(gui->olvedImage,
+    gtk_image_set_from_image(gui->solvedImage,
         GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
     SDL_FreeSurface(gui->image_surface);
 }
 
-void on_solver(GtkButton *button,gpointer* userdata)
+void on_solver(GtkButton *button,gpointer userdata)
 {   
     //get initial grid
     //get solved grid (neural network)
@@ -138,11 +138,11 @@ void on_solver(GtkButton *button,gpointer* userdata)
     int** solvedGrid = FileToMatrix(newpath);
     gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
     gtk_image_set_from_image(gui->solvedImage,
-        GTK_IMAGE(gtk_image_new_from_sdl_surface(gui-->image_surface)));
+        GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
     SDL_FreeSurface(gui->image_surface);
 }
 
-void on_save(GtkButton *button,gpointer* userdata)
+void on_save(GtkButton *button,gpointer userdata)
 {
     UI* gui = userdata;
     SDL_SaveBMP(gui->image_surface,"solved.jpeg");
@@ -186,10 +186,10 @@ void on_backProcessed(GtkButton *button,gpointer* userdata)
 }
  */
 
-int main (int argc, char *argv[])
+int main (int argc, char **argv)
 {
     // Initializes GTK.
-    gtk_init(NULL, NULL);
+    gtk_init(&argc, &argv);
 
     // Constructs a GtkBuilder instance.
     GtkBuilder* welcome_window = gtk_builder_new();
@@ -237,7 +237,7 @@ int main (int argc, char *argv[])
 
     GtkButton* next_button = GTK_BUTTON(gtk_builder_get_object(welcome_window, "next_button"));
     GtkButton* process_button = GTK_BUTTON(gtk_builder_get_object(display_window, "process_button"));
-    GtkFileChooserButton* choose_file_button = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(window, "choose_file_button"));
+    GtkFileChooserButton* choose_file_button = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(welcome_window, "choose_file_button"));
     GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(processed_window, "solve_button"));
     GtkButton* save_button = GTK_BUTTON(gtk_builder_get_object(solved_window, "save_button"));
     // GtkButton* backtoDisplay_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoDisplay_button"));
@@ -247,6 +247,10 @@ int main (int argc, char *argv[])
     GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(processed_window, "processed"));
     GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(display_window, "input"));
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(solved_window, "solved"));
+
+    SDL_Surface *image_surface;
+    char* filepath;
+    gchar*  filename; 
 
     UI gui =
     {
@@ -272,11 +276,11 @@ int main (int argc, char *argv[])
     };   
 
     // Connects event handlers.
-    g_signal_connect(welcome, "destroy", G_CALLBACK(gtk_main_quit), gui);
-    g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), gui);
-    g_signal_connect(next_button, "clicked", G_CALLBACK(on_display), gui);
-    g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), gui);
-    g_signal_connect(choose_file_button, "clicked", G_CALLBACK(on_choose), gui);
+    g_signal_connect(welcome, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), &gui);
+    g_signal_connect(next_button, "clicked", G_CALLBACK(on_display), &gui);
+    g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
+    g_signal_connect(choose_file_button, "clicked", G_CALLBACK(on_choose), &gui);
     // g_signal_connect(backtoDisplay_button,"clicked",G_CALLBACK(on_backDisplay), gui);
     // g_signal_connect(backtoProcessed_button,"clicked",G_CALLBACK(on_backProcessed), gui);
     // g_signal_connect(backtoWelcome_button,"clicked",G_CALLBACK(on_backWelcome), gui);
