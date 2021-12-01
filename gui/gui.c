@@ -222,10 +222,10 @@ int main (int argc, char *argv[])
     }
 
     // Gets the widgets.
-    GtKWindow* welcome = GTK_WINDOW(gtk_builder_get_object(window, "org.gtk.welcome_window"));
-    GtKWindow* display = GTK_WINDOW(gtk_builder_get_object(display_window, "org.gtk.display"));
-    GtKWindow* processed = GTK_WINDOW(gtk_builder_get_object(processed_window, "org.gtk.processed_window"));
-    GtKWindow* solved = GTK_WINDOW(gtk_builder_get_object(solved_window, "org.gtk.final_window"));
+    GtkWindow* welcome = GTK_WINDOW(gtk_builder_get_object(window, "org.gtk.welcome_window"));
+    GtkWindow* display = GTK_WINDOW(gtk_builder_get_object(display_window, "org.gtk.display"));
+    GtkWindow* processed = GTK_WINDOW(gtk_builder_get_object(processed_window, "org.gtk.processed_window"));
+    GtkWindow* solved = GTK_WINDOW(gtk_builder_get_object(solved_window, "org.gtk.final_window"));
 
 
     GtkButton* next_button = GTK_BUTTON(gtk_builder_get_object(window, "next_button"));
