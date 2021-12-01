@@ -8,24 +8,24 @@
 
 typedef struct UI
 {
-    GtkWindow* welcome,
-    GtkWindow* display,
-    GtkWindow* processed,
-    GtkWindow* solved,
-    char[]* filepath, // initial grid
-    gchar*  filename, // path to chosen picture
-    SDL_Surface* image_surface,
-    //GtkButton* backtoProcessed_button,
-    GtkButton* save_button,
+    GtkWindow* welcome;
+    GtkWindow* display;
+    GtkWindow* processed;
+    GtkWindow* solved;
+    char* filepath; // initial grid
+    gchar*  filename; // path to chosen picture
+    SDL_Surface* image_surface;
+    //GtkButton* backtoProcessed_button;
+    GtkButton* save_button;
    // GtkButton* backtoDisplay_button,
-    GtkButton* solve_button,
-    //GtkButton* backtoWelcome_button,
-    GtkButton* process_button,
-    GtkFileChooserButton* choose_file_button,
-    GtkButton* next_button,
-    GtkImage* processedImage,
-    GtkImage* chosenImage,
-    GtkImage* solvedImage, 
+    GtkButton* solve_button;
+    //GtkButton* backtoWelcome_button;
+    GtkButton* process_button;
+    GtkFileChooserButton* choose_file_button;
+    GtkButton* next_button;
+    GtkImage* processedImage;
+    GtkImage* chosenImage;
+    GtkImage* solvedImage; 
 }UI;
 
 GtkWidget* gtk_image_new_from_sdl_surface (SDL_Surface *surface)
