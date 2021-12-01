@@ -9,9 +9,9 @@
 typedef struct UI
 {
     GtkWindow* welcome,
-    GtKWindow* display,
-    GtKWindow* processed,
-    GtKWindow* solved,
+    GtkWindow* display,
+    GtkWindow* processed,
+    GtkWindow* solved,
     char[]* filepath, // initial grid
     gchar*  filename, // path to chosen picture
     SDL_Surface* image_surface,
@@ -262,7 +262,7 @@ int main (int argc, char *argv[])
         .chosenImage = chosenImage,
         .solvedImage = solvedImage,
 
-    }   
+    };   
 
     // Connects event handlers.
     g_signal_connect(welcome, "destroy", G_CALLBACK(gtk_main_quit), gui);
