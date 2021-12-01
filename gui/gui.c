@@ -94,10 +94,10 @@ void on_process(GtkButton *button,gpointer userdata)
     //open process
     UI* gui = userdata;
     gtk_window_close (gui->display);
-    *gui->image_surface = load_image(gui->filename);
-    *gui->image_surface = ApplyBlackAndWhite(gui->image_surface, 180); //change value
-    *gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
-    *gui->processedImage = GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
+    gui->image_surface = load_image(gui->filename);
+    gui->image_surface = ApplyBlackAndWhite(gui->image_surface, 180); //change value
+    gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
+    gui->processedImage = GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
 }
 
 void on_solver(GtkButton *button,gpointer userdata)
