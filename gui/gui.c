@@ -29,25 +29,32 @@ void on_choose(GtkFileChooser *chooser, gpointer userdata)
     gtk_widget_set_sensitive(GTK_WIDGET(gui->process_button),TRUE);
 }
 
-void on_process(GtkButton *button, gpointer userdata)
+void processing(gpointer userdata)
 {
     UI* gui = userdata;
     gui->image_surface = load_image(gui->filename);
     ApplyBlackAndWhite(gui->image_surface, 180); //change value
-    gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
+    //gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
     SDL_SaveBMP(gui->image_surface,"processed.jpeg");
     gtk_image_set_from_file(gui->processedImage,"processed.jpeg");
     gui->filepath = "processed.jpeg";
+}
+
+void on_process(GtkButton *button, gpointer userdata)
+{
+    UI* gui = userdata;
+    processing(gui);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"process_page");
 }
+
 
 void on_solver(GtkButton *button, gpointer userdata)
 {   
     //get initial grid
     //get solved grid (neural network)
     UI* gui = userdata;
-    /* //open solve
+    //open solve
     //solver code
     int** matrix = FileToMatrix(gui->filepath);
 
@@ -76,7 +83,7 @@ void on_solver(GtkButton *button, gpointer userdata)
     int** solvedGrid = FileToMatrix(newpath);
     gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
     SDL_SaveBMP(gui->image_surface,"solved.jpeg");
-    gtk_image_set_from_file(gui->solvedImage,"solved.jpeg"); */
+    gtk_image_set_from_file(gui->solvedImage,"solved.jpeg");
 
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
 }
