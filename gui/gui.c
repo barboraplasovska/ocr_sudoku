@@ -83,20 +83,6 @@ void on_solver(GtkButton *button, gpointer userdata)
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
 }
 
-/* void on_backDisplay(GtkButton *button,gpointer* userdata)
-{
-
-}
-
-void on_backWelcome(GtkButton *button,gpointer* userdata)
-{
-
-}
-
-void on_backProcessed(GtkButton *button,gpointer* userdata)
-{
-
-} */
 
 int main (int argc, char **argv)
 {
@@ -124,9 +110,6 @@ int main (int argc, char **argv)
     GtkButton* process_button = GTK_BUTTON(gtk_builder_get_object(builder, "process_button"));
     GtkFileChooserButton* file_chooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "file_chooser"));
     GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve_button"));
-    // GtkButton* backtoDisplay_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoDisplay_button"));
-    // GtkButton* backtoWelcome_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoWelcome_button"));
-    // GtkButton* backtoProcessed_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoProcessed_button"));
 
     GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(builder, "processedImage"));
     GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(builder, "chosenImage"));
@@ -143,9 +126,6 @@ int main (int argc, char **argv)
         .window = window,
         .filepath = filepath,
         .filename = filename,
-        //.backtoProcessed_button = backtoProcessed_button,
-        //.backtoDisplay_button = backtoDisplay_button,
-        //.backtoWelcome_button = backtoWelcome_button,
         .solve_button = solve_button,
         .process_button = process_button,
         .file_chooser = file_chooser,
@@ -162,9 +142,6 @@ int main (int argc, char **argv)
     g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), &gui);
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
     g_signal_connect(file_chooser, "selection-changed", G_CALLBACK(on_choose), &gui);
-    // g_signal_connect(backtoDisplay_button,"clicked",G_CALLBACK(on_backDisplay), gui);
-    // g_signal_connect(backtoProcessed_button,"clicked",G_CALLBACK(on_backProcessed), gui);
-    // g_signal_connect(backtoWelcome_button,"clicked",G_CALLBACK(on_backWelcome), gui);
 
     gtk_widget_show(GTK_WIDGET(window));
 
