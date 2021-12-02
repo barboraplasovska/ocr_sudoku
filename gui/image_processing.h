@@ -1,8 +1,11 @@
 #ifndef IMAGE_PROCESSING_H
 #define IMAGE_PROCESSING_H
 
+#include "/opt/homebrew/include/SDL/SDL_image.h"
+#include "/opt/homebrew/include/SDL/SDL.h"
+
 void init_sdl();
-SDL_Surface* load_image(char *path);
+SDL_Surface *load_image(char *path);
 Uint32 get_pixel(SDL_Surface *surface, unsigned x, unsigned y);
 void put_pixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel);
 SDL_Surface* display_image(SDL_Surface *img);

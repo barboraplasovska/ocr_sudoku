@@ -1,8 +1,8 @@
 #include <err.h>
 #include <stdio.h>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include "/opt/homebrew/include/SDL/SDL_image.h"
+#include "/opt/homebrew/include/SDL/SDL.h"
 #include <sys/stat.h>
 
 #include <math.h>
@@ -165,12 +165,12 @@ void insertionSort(Uint32 *arr, int len)
 			shift_element(arr, i);
 }
 
-static inline
+/* static inline
 int my_mod(int a, int b)
 {
     int r = a % b;
     return r < 0 ? a + b : r;
-}
+} */
 
 static inline
 int next_iteration(int val, int min, int max)

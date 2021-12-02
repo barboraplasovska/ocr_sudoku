@@ -1,7 +1,7 @@
 # Makefile
 
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk+-3.0 sdl SDL_image` -Wall -Wextra -Werror -O1
+CFLAGS = `pkg-config --cflags gtk+-3.0 sdl SDL_image` -Wall
 #CDLIBS = -L/opt/homebrew/lib -lSDLmain -lSDL #-Wl,-framework,Cocoa
 LDLIBS = `pkg-config --libs gtk+-3.0 sdl SDL_image` -lm
 

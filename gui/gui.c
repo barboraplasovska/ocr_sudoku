@@ -1,112 +1,54 @@
 #include <gtk/gtk.h>
 #include "image_processing.h"
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include "SDL/SDL_image.h"
+#include "SDL/SDL.h"
 #include <err.h>
-
-
 
 typedef struct UI
 {
-    GtkWindow* welcome;
-    GtkWindow* display;
-    GtkWindow* processed;
-    GtkWindow* solved;
-    char* filepath[]; // initial grid
-    gchar*  filename; // path to chosen picture
-    SDL_Surface* image_surface;
-    //GtkButton* backtoProcessed_button;
-    GtkButton* save_button;
-   // GtkButton* backtoDisplay_button,
+    GtkWindow* window;
+    char *filepath; // initial grid
+    gchar *filename;
     GtkButton* solve_button;
+    //GtkButton* backtoProcessed_button;
+    //GtkButton* backtoDisplay_button,
     //GtkButton* backtoWelcome_button;
     GtkButton* process_button;
-    GtkFileChooserButton* choose_file_button;
-    GtkButton* next_button;
+    GtkFileChooserButton* file_chooser;
     GtkImage* processedImage;
     GtkImage* chosenImage;
     GtkImage* solvedImage; 
+    GtkStack *stack;
+    SDL_Surface *image_surface;
 }UI;
 
-GtkWidget* gtk_image_new_from_sdl_surface(SDL_Surface *surface)
-{
-    Uint32 src_format;
-    Uint32 dst_format;
-
-    GdkPixbuf *pixbuf;
-    gboolean has_alpha;
-    int rowstride;
-    guchar *pixels;
-
-    GtkWidget *image;
-
-    // select format                                                            
-    src_format = surface->format->format;
-    has_alpha = SDL_ISPIXELFORMAT_ALPHA(src_format);
-    if (has_alpha) {
-        dst_format = SDL_PIXELFORMAT_RGBA32;
-    }
-    else {
-        dst_format = SDL_PIXELFORMAT_RGB24;
-    }
-
-    // create pixbuf                                                            
-    pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, has_alpha, 8,
-                             surface->w, surface->h);
-    rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-    pixels = gdk_pixbuf_get_pixels (pixbuf);
-
-    // copy pixels                                                              
-    SDL_LockSurface(surface);
-    SDL_ConvertPixels (surface->w, surface->h, src_format,
-               surface->pixels, surface->pitch,
-               dst_format, pixels, rowstride);
-    SDL_UnlockSurface(surface);
-
-    // create GtkImage from pixbuf                                              
-    image = gtk_image_new_from_pixbuf(pixbuf);
-
-    // release our reference to the pixbuf                                      
-    g_object_unref (pixbuf);
-
-    return image;
-}
-
-void on_choose(GtkFileChooserButton *button, gpointer userdata)
+void on_choose(GtkFileChooser *chooser, gpointer userdata)
 {
     UI* gui = userdata;
-    *gui->filename = gtk_file_chooser_get_preview_filename(button);
+    gui->filename = gtk_file_chooser_get_preview_filename(chooser);
+    GdkPixbuf *pixbuf= gdk_pixbuf_new_from_file_at_size(gui->filename, 650, 500, NULL);
+    gtk_image_set_from_pixbuf(gui->chosenImage, pixbuf);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->process_button),TRUE);
 }
 
-void on_display(GtkButton *button, gpointer userdata)
+void on_process(GtkButton *button, gpointer userdata)
 {
     UI* gui = userdata;
-    gtk_window_close(gui->welcome);
-    //open display
-    //set image as the chosen image
-    gtk_image_set_from_file(gui->chosenImage,gui->filename);
-
-}
-
-void on_process(GtkButton *button,gpointer userdata)
-{
-    //close display
-    //open process
-    UI* gui = userdata;
-    gtk_window_close (gui->display);
     gui->image_surface = load_image(gui->filename);
-    gui->image_surface = ApplyBlackAndWhite(gui->image_surface, 180); //change value
+    ApplyBlackAndWhite(gui->image_surface, 180); //change value
     gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
-    gui->processedImage = GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface)));
+    SDL_SaveBMP(gui->image_surface,"processed.jpeg");
+    gtk_image_set_from_file(gui->processedImage,"processed.jpeg");
+    gui->filepath = "processed.jpeg";
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
+    gtk_stack_set_visible_child_name(gui->stack,"process_page");
 }
 
-void on_solver(GtkButton *button,gpointer userdata)
+void on_solver(GtkButton *button, gpointer userdata)
 {   
     //get initial grid
     //get solved grid (neural network)
     UI* gui = userdata;
-    //close process
-    gtk_window_close(gui->processed);
     //open solve
     //solver code
     int** matrix = FileToMatrix(gui->filepath);
@@ -134,15 +76,11 @@ void on_solver(GtkButton *button,gpointer userdata)
     }
 
     int** solvedGrid = FileToMatrix(newpath);
-    *gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
-    *gui->solvedImage = GTK_IMAGE(gtk_image_new_from_sdl_surface(gui->image_surface));
-}
-
-void on_save(GtkButton *button,gpointer userdata)
-{
-    UI* gui = userdata;
+    gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
     SDL_SaveBMP(gui->image_surface,"solved.jpeg");
-    SDL_FreeSurface(gui->image_surface);
+    gtk_image_set_from_file(gui->solvedImage,"solved.jpeg");
+
+    gtk_stack_set_visible_child_name(gui->stack,"solve_page");
 }
 
 /* void on_backDisplay(GtkButton *button,gpointer* userdata)
@@ -160,127 +98,75 @@ void on_backProcessed(GtkButton *button,gpointer* userdata)
 
 } */
 
-/* void update_image(GtkFileChooser *file_chooser, gpointer* data)
-{
-    UI gui = userdata;
-    GtkWidget *preview;
-    char *filename;
-    GdkPixbuf *pixbuf;
-    gboolean have_preview;
-
-    preview = GTK_WIDGET(gui.chosenImage);
-    filename = gtk_file_chooser_get_preview_filename(file_chooser);
-
-    pixbuf = gdk_pixbuf_new_from_file_at_size (filename, 128, 128, NULL);
-    have_preview = (pixbuf != NULL);
-    g_free (filename);
-
-    gtk_image_set_from_pixbuf (GTK_IMAGE (preview), pixbuf);
-    if (pixbuf)
-        g_object_unref (pixbuf);
-
-    gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
-}
- */
-
 int main (int argc, char **argv)
 {
     // Initializes GTK.
     gtk_init(&argc, &argv);
 
     // Constructs a GtkBuilder instance.
-    GtkBuilder* welcome_window = gtk_builder_new();
-    GtkBuilder* display_window = gtk_builder_new();
-    GtkBuilder* processed_window = gtk_builder_new();
-    GtkBuilder* solved_window = gtk_builder_new();
+    GtkBuilder* builder = gtk_builder_new();
 
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
-    if (gtk_builder_add_from_file(welcome_window, "welcome_window.glade", &error) == 0)
+    if (gtk_builder_add_from_file(builder, "gui.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
         g_clear_error(&error);
         return 1;
     }
 
-    if (gtk_builder_add_from_file(display_window, "display.glade", &error) == 0)
-    {
-        g_printerr("Error loading file: %s\n", error->message);
-        g_clear_error(&error);
-        return 1;
-    }
-
-    if (gtk_builder_add_from_file(processed_window, "processed_window.glade", &error) == 0)
-    {
-        g_printerr("Error loading file: %s\n", error->message);
-        g_clear_error(&error);
-        return 1;
-    }
-
-    if (gtk_builder_add_from_file(solved_window, "final_window.glade", &error) == 0)
-    {
-        g_printerr("Error loading file: %s\n", error->message);
-        g_clear_error(&error);
-        return 1;
-    }
-
+    g_object_set(gtk_settings_get_default(),"gtk-application-prefer-dark-theme",TRUE,NULL);
+ 
     // Gets the widgets.
-    GtkWindow* welcome = GTK_WINDOW(gtk_builder_get_object(welcome_window, "org.gtk.welcome_window"));
-    GtkWindow* display = GTK_WINDOW(gtk_builder_get_object(display_window, "org.gtk.display"));
-    GtkWindow* processed = GTK_WINDOW(gtk_builder_get_object(processed_window, "org.gtk.processed_window"));
-    GtkWindow* solved = GTK_WINDOW(gtk_builder_get_object(solved_window, "org.gtk.final_window"));
+    GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "window"));
 
-
-    GtkButton* next_button = GTK_BUTTON(gtk_builder_get_object(welcome_window, "next_button"));
-    GtkButton* process_button = GTK_BUTTON(gtk_builder_get_object(display_window, "process_button"));
-    GtkFileChooserButton* choose_file_button = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(welcome_window, "choose_file_button"));
-    GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(processed_window, "solve_button"));
-    GtkButton* save_button = GTK_BUTTON(gtk_builder_get_object(solved_window, "save_button"));
+    GtkButton* process_button = GTK_BUTTON(gtk_builder_get_object(builder, "process_button"));
+    GtkFileChooserButton* file_chooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "file_chooser"));
+    GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve_button"));
     // GtkButton* backtoDisplay_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoDisplay_button"));
     // GtkButton* backtoWelcome_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoWelcome_button"));
     // GtkButton* backtoProcessed_button = GTK_BUTTON(gtk_builder_get_object(window, "backtoProcessed_button"));
 
-    GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(processed_window, "processed"));
-    GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(display_window, "input"));
-    GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(solved_window, "solved"));
+    GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(builder, "processedImage"));
+    GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(builder, "chosenImage"));
+    GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(builder, "solvedImage"));
 
-    SDL_Surface *image_surface;
-    char* filepath[];
-    gchar*  filename; 
+    GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
+
+    SDL_Surface *image_surface = load_image("image_01.jpeg");
+    char* filepath = "";
+    gchar* filename = "";
 
     UI gui =
     {
-        .welcome = welcome,
-        .display = display,
-        .processed = processed,
-        .solved = solved,
+        .window = window,
         .filepath = filepath,
-        .image_surface = image_surface,
         .filename = filename,
         //.backtoProcessed_button = backtoProcessed_button,
-        .save_button = save_button,
         //.backtoDisplay_button = backtoDisplay_button,
-        .solve_button = solve_button,
         //.backtoWelcome_button = backtoWelcome_button,
+        .solve_button = solve_button,
         .process_button = process_button,
-        .choose_file_button = choose_file_button,
-        .next_button = next_button,
+        .file_chooser = file_chooser,
         .processedImage = processedImage,
         .chosenImage = chosenImage,
         .solvedImage = solvedImage,
+        .stack = stack,
+        .image_surface = image_surface,
 
     };   
 
     // Connects event handlers.
-    g_signal_connect(welcome, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), &gui);
-    g_signal_connect(next_button, "clicked", G_CALLBACK(on_display), &gui);
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
-    g_signal_connect(choose_file_button, "clicked", G_CALLBACK(on_choose), &gui);
+    g_signal_connect(file_chooser, "selection-changed", G_CALLBACK(on_choose), &gui);
     // g_signal_connect(backtoDisplay_button,"clicked",G_CALLBACK(on_backDisplay), gui);
     // g_signal_connect(backtoProcessed_button,"clicked",G_CALLBACK(on_backProcessed), gui);
     // g_signal_connect(backtoWelcome_button,"clicked",G_CALLBACK(on_backWelcome), gui);
+
+    gtk_widget_show(GTK_WIDGET(window));
 
     // Runs the main loop.
     gtk_main();
