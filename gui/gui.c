@@ -10,10 +10,8 @@ typedef struct UI
     char *filepath; // initial grid
     gchar *filename;
     GtkButton* solve_button;
-    //GtkButton* backtoProcessed_button;
-    //GtkButton* backtoDisplay_button,
-    //GtkButton* backtoWelcome_button;
     GtkButton* process_button;
+    GtkButton* restart_button;
     GtkFileChooserButton* file_chooser;
     GtkImage* processedImage;
     GtkImage* chosenImage;
@@ -49,7 +47,7 @@ void on_solver(GtkButton *button, gpointer userdata)
     //get initial grid
     //get solved grid (neural network)
     UI* gui = userdata;
-    //open solve
+    /* //open solve
     //solver code
     int** matrix = FileToMatrix(gui->filepath);
 
@@ -78,9 +76,17 @@ void on_solver(GtkButton *button, gpointer userdata)
     int** solvedGrid = FileToMatrix(newpath);
     gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
     SDL_SaveBMP(gui->image_surface,"solved.jpeg");
-    gtk_image_set_from_file(gui->solvedImage,"solved.jpeg");
+    gtk_image_set_from_file(gui->solvedImage,"solved.jpeg"); */
 
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
+}
+
+void on_restart(GtkButton *button, gpointer userdata)
+{   
+    UI* gui = userdata;
+    gtk_image_set_from_pixbuf(gui->chosenImage,NULL);
+    gtk_widget_show(GTK_WIDGET(gui->file_chooser));
+    gtk_widget_hide(GTK_WIDGET(button));
 }
 
 
@@ -110,7 +116,7 @@ int main (int argc, char **argv)
     GtkButton* process_button = GTK_BUTTON(gtk_builder_get_object(builder, "process_button"));
     GtkFileChooserButton* file_chooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "file_chooser"));
     GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve_button"));
-
+    GtkButton* restart_button = GTK_BUTTON(gtk_builder_get_object(builder, "restart_button"));
     GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(builder, "processedImage"));
     GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(builder, "chosenImage"));
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(builder, "solvedImage"));
@@ -134,6 +140,7 @@ int main (int argc, char **argv)
         .solvedImage = solvedImage,
         .stack = stack,
         .image_surface = image_surface,
+        .restart_button = restart_button,
 
     };   
 
@@ -141,7 +148,9 @@ int main (int argc, char **argv)
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), &gui);
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
+    g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart), &gui);
     g_signal_connect(file_chooser, "selection-changed", G_CALLBACK(on_choose), &gui);
+
 
     gtk_widget_show(GTK_WIDGET(window));
 
