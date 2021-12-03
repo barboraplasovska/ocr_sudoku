@@ -4,6 +4,8 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkWindow" id="window">
     <property name="name">window</property>
+    <property name="width_request">1100</property>
+    <property name="height_request">650</property>
     <property name="can-focus">False</property>
     <child>
       <object class="GtkFixed" id="fix1">
@@ -90,9 +92,9 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="solve_button">
-                    <property name="label" translatable="yes">solve</property>
-                    <property name="name">solve_button</property>
+                  <object class="GtkButton" id="check_button">
+                    <property name="label" translatable="yes">check</property>
+                    <property name="name">check_button</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -107,6 +109,105 @@
                 <property name="name">process_page</property>
                 <property name="title" translatable="yes">Process</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFixed" id="check_digits_page">
+                <property name="name">check_digits_page</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkImage" id="oldImage">
+                    <property name="name">oldImage</property>
+                    <property name="width-request">400</property>
+                    <property name="height-request">400</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">80</property>
+                    <property name="y">30</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="solve_button">
+                    <property name="label" translatable="yes">solve</property>
+                    <property name="name">solve_button</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">1000</property>
+                    <property name="y">550</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="generatedImage">
+                    <property name="name">generatedImage</property>
+                    <property name="width-request">400</property>
+                    <property name="height-request">400</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="x">620</property>
+                    <property name="y">30</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="x_coordinate_input">
+                    <property name="name">x_coordinate_input</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">200</property>
+                    <property name="y">491</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="y_coordinate_input">
+                    <property name="name">y_coordinate_input</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">480</property>
+                    <property name="y">491</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="correct_digit_input">
+                    <property name="name">correct_digit_input</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">760</property>
+                    <property name="y">491</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="submit_button">
+                    <property name="label" translatable="yes"> ok  </property>
+                    <property name="name">submit_button</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">1000</property>
+                    <property name="y">491</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="name">check_digits_page</property>
+                <property name="title" translatable="yes">Identify Digits</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -145,7 +246,7 @@
               <packing>
                 <property name="name">solve_page</property>
                 <property name="title" translatable="yes">Solve</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>

@@ -1,4 +1,8 @@
 #include <gtk/gtk.h>
+#include <stdlib.h>
+#include "digitRecog.h"
+#include "network.h"
+#include "solver.h"
 #include "image_processing.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL.h"
@@ -11,11 +15,15 @@ typedef struct UI
     gchar *filename;
     GtkButton* solve_button;
     GtkButton* process_button;
+    GtkButton* check_button;
+    GtkButton* submit_button;
     GtkButton* restart_button;
     GtkFileChooserButton* file_chooser;
     GtkImage* processedImage;
     GtkImage* chosenImage;
     GtkImage* solvedImage; 
+    GtkImage* oldImage; 
+    GtkImage* generatedImage;
     GtkStack *stack;
     SDL_Surface *image_surface;
 }UI;
@@ -33,19 +41,63 @@ void processing(gpointer userdata)
 {
     UI* gui = userdata;
     gui->image_surface = load_image(gui->filename);
-    ApplyBlackAndWhite(gui->image_surface, 180); //change value
-    //gui->image_surface = RotateSurface(gui->image_surface, 37); //change value
-    SDL_SaveBMP(gui->image_surface,"processed.jpeg");
-    gtk_image_set_from_file(gui->processedImage,"processed.jpeg");
-    gui->filepath = "processed.jpeg";
+    char boxes[] = "boxes";
+    ApplyAllFilters(image_surface, boxes);
+    SDL_SaveBMP(gui->image_surface,"processed.bmp");
+    gtk_image_set_from_file(gui->processedImage,"processed.bmp");
+    gui->filepath = "processed.bmp";
 }
 
 void on_process(GtkButton *button, gpointer userdata)
 {
     UI* gui = userdata;
     processing(gui);
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->check_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"process_page");
+}
+
+void on_check(GtkButton *button, gpointer userdata)
+{   
+    UI* gui = userdata;
+    gtk_image_set_from_file(gui->oldImage,"processed.bmp");
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
+    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
+}
+
+void on_remake(GtkButton *button, gpointer userdata)
+{   
+    UI* gui = userdata;
+    gtk_image_set_from_file(gui->generatedImage,"processed.bmp");
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
+    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
+}
+
+int recognizeDigits()
+{
+    Char boxPath[] = "boxxy.bmp";
+    Network *nn = setupNetwork();
+    FILE *f = fopen("grid", "r");
+    int res[9][9];
+    for (size_t x = 0; x < 9; x++)
+    {
+        for (size_t y = 0; y < 9; y++)
+        {
+            boxPath[3] = x;
+            boxPath[4] = y;
+            char c = fgetc(f);
+            if (c == '1') // there is an image to work with
+            {
+                SDL_Surface *img = load_image(boxPath);
+                res[x][y] = findDigit(nn, img);
+                SDL_FreeSurace(img);
+            }
+            else
+                res[x][y] = 0;
+        }
+    }
+    return res;
 }
 
 
@@ -56,7 +108,7 @@ void on_solver(GtkButton *button, gpointer userdata)
     UI* gui = userdata;
     //open solve
     //solver code
-    int** matrix = FileToMatrix(gui->filepath);
+    /* int** matrix = FileToMatrix(gui->filepath);
 
     char newpath[8] = ".result";
     char str3[100];
@@ -82,8 +134,10 @@ void on_solver(GtkButton *button, gpointer userdata)
 
     int** solvedGrid = FileToMatrix(newpath);
     gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
-    SDL_SaveBMP(gui->image_surface,"solved.jpeg");
-    gtk_image_set_from_file(gui->solvedImage,"solved.jpeg");
+    SDL_SaveBMP(gui->image_surface,"solved.bmp"); 
+    gtk_image_set_from_file(gui->solvedImage,"solved.bmp"); */
+
+    recognizeDigits();
 
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
 }
@@ -123,10 +177,14 @@ int main (int argc, char **argv)
     GtkButton* process_button = GTK_BUTTON(gtk_builder_get_object(builder, "process_button"));
     GtkFileChooserButton* file_chooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "file_chooser"));
     GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve_button"));
+    GtkButton* check_button = GTK_BUTTON(gtk_builder_get_object(builder, "check_button"));
+    GtkButton* submit_button = GTK_BUTTON(gtk_builder_get_object(builder, "submit_button"));;
     GtkButton* restart_button = GTK_BUTTON(gtk_builder_get_object(builder, "restart_button"));
     GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(builder, "processedImage"));
     GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(builder, "chosenImage"));
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(builder, "solvedImage"));
+    GtkImage* oldImage = GTK_IMAGE(gtk_builder_get_object(builder, "oldImage"));
+    GtkImage* generatedImage = GTK_IMAGE(gtk_builder_get_object(builder, "generatedImage"));
 
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
 
@@ -145,9 +203,13 @@ int main (int argc, char **argv)
         .processedImage = processedImage,
         .chosenImage = chosenImage,
         .solvedImage = solvedImage,
+        .oldImage = oldImage,
         .stack = stack,
         .image_surface = image_surface,
         .restart_button = restart_button,
+        .check_button = check_button,
+        .submit_button = submit_button,
+        .generatedImage = generatedImage,
 
     };   
 
@@ -155,6 +217,8 @@ int main (int argc, char **argv)
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), &gui);
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
+    g_signal_connect(check_button, "clicked", G_CALLBACK(on_check), &gui);
+    g_signal_connect(submit_button, "clicked", G_CALLBACK(on_remake), &gui);
     g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart), &gui);
     g_signal_connect(file_chooser, "selection-changed", G_CALLBACK(on_choose), &gui);
 
