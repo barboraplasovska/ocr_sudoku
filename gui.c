@@ -12,7 +12,7 @@ typedef struct UI
 {
     GtkWindow* window;
     char *filepath; // initial grid
-    gchar *filename;
+    gchar* filename;
     GtkButton* solve_button;
     GtkButton* process_button;
     GtkButton* check_button;
@@ -26,83 +26,142 @@ typedef struct UI
     GtkImage* generatedImage;
     GtkStack *stack;
     SDL_Surface *image_surface;
+    GtkEntry* x_coordinate_input;
+    GtkEntry* y_coordinate_input;
+    GtkEntry* correct_digit_input;
 }UI;
 
 void on_choose(GtkFileChooser *chooser, gpointer userdata)
 {
     UI* gui = userdata;
+    //printf("set file name here and it is %s\n", gui->filename);
     gui->filename = gtk_file_chooser_get_preview_filename(chooser);
-    GdkPixbuf *pixbuf= gdk_pixbuf_new_from_file_at_size(gui->filename, 650, 500, NULL);
+    //printf("set file name here and it is %s\n", gui->filename);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size(gui->filename, 650, 500, NULL);
     gtk_image_set_from_pixbuf(gui->chosenImage, pixbuf);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->process_button),TRUE);
+    //printf("set file name here and it is %s\n", gui->filename);
 }
 
-void processing(gpointer userdata)
+void processing(SDL_Surface *image_surface)
 {
+    //CreateFolder("image_processed_folder");
+    char boxes[] = "Box00.bmp";
+    //printf("before applying filter and %i\n", image_surface->w);
+    ApplyAllFilters(image_surface, boxes);
+    SDL_SaveBMP(image_surface,"processed.bmp");
+}
+
+void on_process(GtkButton *button,gpointer userdata)
+{
+    button = button;
     UI* gui = userdata;
     gui->image_surface = load_image(gui->filename);
-    char boxes[] = "boxes";
-    ApplyAllFilters(image_surface, boxes);
-    SDL_SaveBMP(gui->image_surface,"processed.bmp");
-    gtk_image_set_from_file(gui->processedImage,"processed.bmp");
+    processing(gui->image_surface);
     gui->filepath = "processed.bmp";
-}
-
-void on_process(GtkButton *button, gpointer userdata)
-{
-    UI* gui = userdata;
-    processing(gui);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size(gui->filepath, 650, 500, NULL);
+    gtk_image_set_from_pixbuf(gui->processedImage,pixbuf);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->check_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"process_page");
 }
 
-void on_check(GtkButton *button, gpointer userdata)
-{   
-    UI* gui = userdata;
-    gtk_image_set_from_file(gui->oldImage,"processed.bmp");
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
-    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
-}
-
-void on_remake(GtkButton *button, gpointer userdata)
-{   
-    UI* gui = userdata;
-    gtk_image_set_from_file(gui->generatedImage,"processed.bmp");
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
-    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
-}
-
-int recognizeDigits()
+int** recognizeDigits()
 {
-    Char boxPath[] = "boxxy.bmp";
-    Network *nn = setupNetwork();
+    char boxPath[] = "Boxxy.bmp";
+    //printf("justbeforeneural\n");
+    //Network *nn = setupNetwork();
+    //Network *nn = createNetwork(784,20,10);
+    //printf("created network\n");
+    //loadWeights("weights.txt", nn);
     FILE *f = fopen("grid", "r");
-    int res[9][9];
-    for (size_t x = 0; x < 9; x++)
+    int** res = (int **) malloc(9 * sizeof(int *));
+
+    for (int i = 0; i < 9; i++)
     {
-        for (size_t y = 0; y < 9; y++)
+        res[i] = (int *) malloc(9 * sizeof(int));
+    }
+
+    // boxPath[0] = boxPath[0]; wtf???
+
+    for (int x = 0; x < 9; x++)
+    {
+        for (int y = 0; y < 9; y++)
         {
-            boxPath[3] = x;
-            boxPath[4] = y;
+	    //printf("the X is %c, The Y is: %c\n" ,x + '0', y + '0');
+            boxPath[3] = x + '0';
+            boxPath[4] = y + '0';
+	    //printf("box path is: %s\n", boxPath);
             char c = fgetc(f);
+	    //printf("the char is: %c\n", c);
             if (c == '1') // there is an image to work with
             {
+		        res[x][y] = 1;
+                //printf("digit\n");;
                 SDL_Surface *img = load_image(boxPath);
-                res[x][y] = findDigit(nn, img);
-                SDL_FreeSurace(img);
+                //printf("image w is: %i\n", img->w);
+                //printf("find digit: %i\n", findDigit(nn, img));
+                //res[x][y] = findDigit(nn, img);
+                //res[x][y] = 1;
+                SDL_FreeSurface(img);
             }
             else
-                res[x][y] = 0;
+            {
+                //printf("stuff\n");
+                res[x][y] = 2;
+            }
         }
     }
+
     return res;
 }
 
 
-void on_solver(GtkButton *button, gpointer userdata)
+void on_check(GtkButton* button,gpointer userdata)
+{
+    UI* gui = userdata;
+    gui = gui;
+    button = button;
+
+    //int** oldgrid = FileToMatrix("grid_00");
+    //int** grid = FileToMatrix("grid_00.result");
+
+    //printf("value is: %i", oldgrid[0][0]);
+
+    int** recGrid = recognizeDigits();
+    //printf("before recognize\n");
+    //recognizeDigits();
+    //printf("did neural\n");
+    SaveSolvedGrid(recGrid, recGrid,"recognized.bmp");
+    //printf("after neural\n");
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size(gui->filepath, 400, 400, NULL);
+    gtk_image_set_from_pixbuf(gui->oldImage,pixbuf);
+    pixbuf = gdk_pixbuf_new_from_file_at_size("recognized.bmp", 400, 400, NULL);
+    gtk_image_set_from_pixbuf(gui->generatedImage,pixbuf);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
+    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
+
+}
+
+void on_remake(GtkButton* button, gpointer userdata)
 {   
+	//printf("on remake\n");
+    UI* gui = userdata;
+    button = button;
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size("recognized.bmp", 400, 400, NULL);
+    gtk_image_set_from_pixbuf(gui->generatedImage,pixbuf);
+    int x = atoi(gtk_entry_get_text(gui->x_coordinate_input));
+    int y = atoi(gtk_entry_get_text(gui->y_coordinate_input));
+    int digit = atoi(gtk_entry_get_text(gui->correct_digit_input));
+    //what do we want to do with this info?
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
+    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
+}
+
+void on_solver(GtkButton * button,gpointer userdata)
+{
+	//printf("on solve\n");
     //get initial grid
     //get solved grid (neural network)
     UI* gui = userdata;
@@ -136,14 +195,15 @@ void on_solver(GtkButton *button, gpointer userdata)
     gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
     SDL_SaveBMP(gui->image_surface,"solved.bmp"); 
     gtk_image_set_from_file(gui->solvedImage,"solved.bmp"); */
-
+    button = button;
     recognizeDigits();
 
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
 }
 
 void on_restart(GtkButton *button, gpointer userdata)
-{   
+{  
+    //printf("on restart\n");
     UI* gui = userdata;
     gtk_image_set_from_pixbuf(gui->chosenImage,NULL);
     gtk_widget_show(GTK_WIDGET(gui->file_chooser));
@@ -185,12 +245,15 @@ int main (int argc, char **argv)
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(builder, "solvedImage"));
     GtkImage* oldImage = GTK_IMAGE(gtk_builder_get_object(builder, "oldImage"));
     GtkImage* generatedImage = GTK_IMAGE(gtk_builder_get_object(builder, "generatedImage"));
+    GtkEntry* x_coordinate_input = GTK_ENTRY(gtk_builder_get_object(builder, "x_coordinate_input"));
+    GtkEntry* y_coordinate_input = GTK_ENTRY(gtk_builder_get_object(builder, "y_coordinate_input"));
+    GtkEntry* correct_digit_input = GTK_ENTRY(gtk_builder_get_object(builder, "correct_digit_input"));
 
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
 
     SDL_Surface *image_surface = load_image("image_01.jpeg");
     char* filepath = "";
-    gchar* filename = "";
+    char* filename = "";
 
     UI gui =
     {
@@ -210,8 +273,11 @@ int main (int argc, char **argv)
         .check_button = check_button,
         .submit_button = submit_button,
         .generatedImage = generatedImage,
+        .x_coordinate_input = x_coordinate_input,
+        .y_coordinate_input = y_coordinate_input,
+        .correct_digit_input = correct_digit_input,
 
-    };   
+    };
 
     // Connects event handlers.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);

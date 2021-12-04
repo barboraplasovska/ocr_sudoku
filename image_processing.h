@@ -1,6 +1,8 @@
 #ifndef IMAGE_PROCESSING_H
 #define IMAGE_PROCESSING_H
 
+#include "/opt/homebrew/include/SDL/SDL_image.h"
+#include "/opt/homebrew/include/SDL/SDL.h"
 void init_sdl();
 SDL_Surface* load_image(char *path);
 Uint32 get_pixel(SDL_Surface *surface, unsigned x, unsigned y);
@@ -14,7 +16,7 @@ void InvertColors(SDL_Surface *surface);
 SDL_Surface* RotateSurface(SDL_Surface *surface, double angleInDegrees);
 void EnhanceSurfaceContrast(SDL_Surface *surface, int C);
 int** FileToMatrix(char path[]);
-void SaveSolvedGrid(int** oldgrid, int** grid, char path[]);
+void SaveSolvedGrid(int** oldgrid, int** grid,char path[]);
 void loop1 (SDL_Surface *surface,
     int *yt, int *middlet, int *failt, int *possiblet, int *i2t);
 void loop2 (SDL_Surface *surface,
@@ -28,8 +30,7 @@ void Getboxes (SDL_Surface *surface, int x1, int y1, int x2, int y2,
     int x3, int y3, int x4, int y4, char name[]);
 SDL_Surface* FindCorners(SDL_Surface *surface, char name[], int foundCorners,
 		int getBoxes);
-void ApplyAllFilters(SDL_Surface *surface, char folderName1[],
-		char folderName2[], char folderName3[], char name[]);
+void ApplyAllFilters(SDL_Surface *surface, char name[]);
 void CreateFolder(char* folderName);
 
 #endif

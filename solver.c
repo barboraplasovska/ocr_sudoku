@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-int grid[9][9];
-int* p = &grid[0][0];
+//int grid[9][9];
+//int* p = &grid[0][0];
 
 /// Returns true if the given column is solved
 /// <param name="x"> index of the column</param>
-int is_column_solved(int x)
+int is_column_solved(int x, int *p)
 {
     for (int i = 1; i <= 9; i++)
     {
@@ -25,7 +25,7 @@ int is_column_solved(int x)
 
 /// Returns true if the given line is solved
 /// <param name="y"> index of the line</param>
-int is_line_solved(int y)
+int is_line_solved(int y, int *p)
 {
     for (int i = 1; i <= 9; i++)
     {
@@ -46,7 +46,7 @@ int is_line_solved(int y)
 /// Returns true if the 3x3 square containing the given coords is solved
 /// <param name="x"> index of the column</param>
 /// <param name="y"> index of the line</param>
-int is_square_solved(int x, int y)
+int is_square_solved(int x, int y, int* p)
 {
     x /= 3;
     y /= 3;
@@ -72,24 +72,25 @@ int is_square_solved(int x, int y)
     return 1;
 }
 
+/*
 /// Returns true the grid is solved
-int is_solved()
+int is_solved(int *p)
 {
     for (int i = 0; i < 9; i++)
     {
-        if (!is_column_solved(i) || !is_line_solved(i) ||
-        !is_square_solved(i / 3, i % 3))
+        if (!is_column_solved(i, p) || !is_line_solved(i, p) ||
+        !is_square_solved(i / 3, i % 3, p))
             return 0;
     }
     return 1;
-}
+}*/
 
 /// <summary>
 /// Returns true if the given column already contains the given value
 /// </summary>
 /// <param name="x"> index of the column</param>
 /// <param name="val"> value that must be checked</param>
-int already_in_column(int x, int val)
+int already_in_column(int x, int val, int *p)
 {
     for (int y = 0; y < 9; y++)
     {
@@ -103,7 +104,7 @@ int already_in_column(int x, int val)
 /// Returns true if the given line already contains the given value
 /// <param name="y"> index of the line</param>
 /// <param name="val"> value that must be checked</param>
-int already_in_line(int y, int val)
+int already_in_line(int y, int val, int* p)
 {
     for (int x = 0; x < 9; x++)
     {
@@ -119,7 +120,7 @@ int already_in_line(int y, int val)
 /// <param name="x"> index of the column</param>
 /// <param name="y"> index of the line</param>
 /// <param name="val"> value that must be checked</param>
-int already_in_square(int x, int y, int val)
+int already_in_square(int x, int y, int val, int *p)
 {
     x /= 3;
     y /= 3;
@@ -147,7 +148,7 @@ void SetNextCoords(int *nextX,int *nextY)
     }
 }
 
-int _solve(int x, int y)
+int _solve(int x, int y, int* p)
 {
     if (y >= 9)
         return 1;
@@ -157,16 +158,16 @@ int _solve(int x, int y)
     SetNextCoords(&nextX, &nextY);
 
     if (*(p + y*9 + x) != 0)
-        return _solve(nextX,nextY);
+        return _solve(nextX,nextY, p);
 
     for (int i = 1; i <= 9; i++)
     {
-        if (!already_in_column(x, i) &&
-         !already_in_line(y, i) && 
-         !already_in_square(x, y, i))
+        if (!already_in_column(x, i, p) &&
+         !already_in_line(y, i, p) && 
+         !already_in_square(x, y, i, p))
         {
             *(p + y*9 + x) = i;
-            if (_solve(nextX, nextY))
+            if (_solve(nextX, nextY, p))
                 return 1;
             *(p + y*9 + x) = 0;
         }
@@ -176,8 +177,8 @@ int _solve(int x, int y)
 }
 
 /// Solves the grid
-void solve(int *g)
+void solve(int* p)
 {
-    *p = g;
-    _solve(0, 0);
+    //*p = &g;
+    _solve(0, 0, p);
 }

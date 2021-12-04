@@ -8,12 +8,6 @@
 #include "network.h"
 #include "image_processing.h" //not sure it should be here
 
-static inline Uint8* pixel_ref(SDL_Surface *surf, unsigned x, unsigned y)
-{
-    int bpp = surf->format->BytesPerPixel;
-    return (Uint8*)surf->pixels + y * surf->pitch + x * bpp;
-}
-
 double getBWPixel(SDL_Surface *surface, unsigned x, unsigned y)
 {
     Uint32 pixel = get_pixel(surface, x, y);
@@ -56,7 +50,7 @@ void saveWeights(Network *nn)
         exit(1);
     }
 
-    size_t nbNeurons[3] = {783,20,10};
+    size_t nbNeurons[3] = {784,20,10};
     LayerType lTypes[3] = {INPUT, HIDDEN, OUTPUT};
 
     for (size_t l = 0; l < 3; l++)
@@ -109,17 +103,21 @@ void loadWeights(char *filePath, Network *nn)
     size_t neuInd = 0;
     size_t weInd = 0;
     int bias = 1;
-    size_t nbNeurons[3] = {783,20,10};
+    size_t nbNeurons[3] = {784,20,10};
     LayerType lTypes[3] = {INPUT, HIDDEN, OUTPUT};
 
     Layer *layer = getLayer(nn, lTypes[layInd]);
     Neuron *neuron = getNeuron(layer, neuInd);
+    int i = 0;
 
-    while ((read = getdelim(&line, &len, '\n', fptr)) != EOF)
+    while ((read = getline(&line, &len, fptr)) != -1)
     {
+        //printf("%d: %s", i, line);
+        i++;
         if (line[0] == '*')
         {
-            layInd++;
+			if (layInd < 2)
+            	layInd++;
             neuInd = 0;
             weInd = 0;
             bias = 1;

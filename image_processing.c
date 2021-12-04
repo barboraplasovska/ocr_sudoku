@@ -1,8 +1,8 @@
 #include <err.h>
 #include <stdio.h>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include "/opt/homebrew/include/SDL/SDL_image.h"
+#include "/opt/homebrew/include/SDL/SDL.h"
 #include <sys/stat.h>
 
 #include <math.h>
@@ -475,7 +475,7 @@ int** FileToMatrix(char path[])
     return p;
 }
 
-SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid);SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid)
+void SaveSolvedGrid(int** oldgrid, int** grid,char path[])//SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid)
 {
     SDL_Surface* emptyGrid = load_image("EMPTYGRID.jpeg");
     
@@ -505,7 +505,7 @@ SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid);SDL_Surface* SaveSolvedGr
     
     int gridPositionsXY[9] =    {11, 118, 227, 340, 448, 557, 670, 778, 886};
     int gridPositionsXYMAX[9] = {114, 221, 330, 443, 551, 660, 773, 881, 989};
-    
+
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 9; j++)
@@ -514,20 +514,35 @@ SDL_Surface* SaveSolvedGrid(int** oldgrid, int** grid);SDL_Surface* SaveSolvedGr
             {
                 for (int y = gridPositionsXY[j]; y < gridPositionsXYMAX[j]; y++)
                 {
-                    int numberIndex = grid[j][i] - 1;
+		            int numberIndex = grid[j][i] - 1;
                     Uint32 pixel;
                     if (oldgrid[j][i] == 0)
-                        pixel = get_pixel(numbers[numberIndex], x - gridPositionsXY[i], y - gridPositionsXY[j]);
+                        pixel = get_pixel(
+					numbers[numberIndex],
+					x - gridPositionsXY[i],
+					y - gridPositionsXY[j]);
                     else
-                        pixel = get_pixel(numbersSolved[numberIndex], x - gridPositionsXY[i], y - gridPositionsXY[j]);
+                        pixel = get_pixel(
+					numbersSolved[numberIndex],
+					x - gridPositionsXY[i],
+					y - gridPositionsXY[j]);
                     
                     put_pixel(emptyGrid, x, y, pixel);
                 }
             }
         }
     }
+
+    printf("after loop\n");
+
+    for(int i = 0; i < 9; i++)
+    {
+        SDL_FreeSurface(numbersSolved[i]);
+	SDL_FreeSurface(numbers[i]);
+    }
     
-    return emptyGrid;
+    SDL_SaveBMP(emptyGrid,path);
+    SDL_FreeSurface(emptyGrid);
 }
 
 void loop1 (SDL_Surface *surface,
@@ -630,11 +645,11 @@ void loop2 (SDL_Surface *surface, int *yt, int *middlet,int *failt,
     int possible = *possiblet;
     int fail = *failt;
     int i2 = *i2t;
-    while(middle>width-5)
+    while( middle > width - 5 )
     {
-        middle=middle-1;
+        middle = middle - 1;
     }
-    while (i2<height-3-y && possible == 0 && middle>3 && middle <width-3)
+    while ( i2 < height - 3 - y && possible == 0 && middle > 3 && middle < width - 3 )
     {
         Uint32 pixel = get_pixel(surface, middle, y+fail+i2);
         Uint8 r3, g3, b3;
@@ -932,6 +947,7 @@ int mod(SDL_Surface *surface, SDL_Surface *img, int x, int xx,int y, int yy)
 void Getboxes(SDL_Surface *surface, int x1, int y1, int x2, int y2,
     int x3, int y3, int x4, int y4, char name[]) //void
 {
+    
     //int grid[9][9];
     // "testFolder/Box00.bmp";
     FILE* f = fopen("grid", "w");
@@ -946,8 +962,8 @@ void Getboxes(SDL_Surface *surface, int x1, int y1, int x2, int y2,
     {
         while (i<9)
         {
-            name[12]=(char)(i+48);
-            name[13]=(char)(i2+48);
+            name[3]=(char)(i+48);
+            name[4]=(char)(i2+48);
             int x=(-(x4+(x3-x4)/9*i2)+(x1+(x2-x1)/9*i2))/9*i+x4+(x3-x4)/9*i2;
             int xx=(-(x4+(x3-x4)/9*i2)+
                 (x1+(x2-x1)/9*i2))/9*(i+1)+x4+(x3-x4)/9*i2;
@@ -1216,7 +1232,6 @@ void Getboxes(SDL_Surface *surface, int x1, int y1, int x2, int y2,
             img=SDL_CreateRGBSurface(0,28,28,32,0,0,0,0);
             int num = mod(surface, img, topx, botx, topy, boty);
             //grid[i][i2] = num;
-           
             fprintf(f,"%i",num);
             SDL_SaveBMP(img,name);
             i=i+1;
@@ -1229,6 +1244,7 @@ void Getboxes(SDL_Surface *surface, int x1, int y1, int x2, int y2,
 
 SDL_Surface* FindCorners(
 	SDL_Surface *surface, char name[], int foundCorners, int getBoxes)
+
 {
     //add an auto rot variable
     int width = surface->w;

@@ -1,27 +1,26 @@
-# Makefile
+CC = gcc -fsanitize=address
+CFLAGS = -Wall -Wextra -Werrors -std=c99 -O1
+LDLIBS = `pkg-config --cflags --libs gtk+-3.0 sdl SDL_image`
 
-CPPFLAGS = -MMD
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -O2
-LDFLAGS = #no idea
-LDLIBS = -lm
+gui: gui.c image_processing.h digitRecog.h network.h solver.h
+	$(CC) $(CFLAGS) -o gui gui.c digitRecog.c network.c solver.c image_processing.c $(LDLIBS) -lm -Iutil
 
-SRC = main.c #the rest of the files here
-OBJ = ${SRC:.c=.o}
-DEP = ${SRC:.c=.d}
+image_processing.o: image_processing.c image_processing.h
+	$(CC) $(CFLAGS) -c image_processing.c image_processing.h $(LDLIBS)
 
-all: solver
+digitRecog.o: digitRecog.c digitRecog.h network.o
+	$(CC) $(CFLAGS) -c digitRecog.c digitRecog.h network.o
 
-solver: ${OBJ}
+network.o: network.c network.h
+	$(CC) $(CFLAGS) -c network.c network.h
 
-.PHONY: clean
+solver.o: solver.c solver.h
+	$(CC) $(CFLAGS) -c solver.c solver.h
 
 clean:
-	${RM} ${OBJ}   # remove object files
-	${RM} ${DEP}   # remove dependency files
-	${RM} main     # remove main program
-	${RM} *.result # remove result
-
--include ${DEP}
-
-# END
+	${RM} -f *.o
+	${RM} -f *.gch
+	${RM} -f *.out
+	${RM} -rf *.dSYM
+	${RM} -rf *.bmp
+	${RM} gui
