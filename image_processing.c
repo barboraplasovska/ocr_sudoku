@@ -1,8 +1,8 @@
 #include <err.h>
 #include <stdio.h>
 
-#include "/opt/homebrew/include/SDL/SDL_image.h"
-#include "/opt/homebrew/include/SDL/SDL.h"
+#include "SDL/SDL_image.h"
+#include "SDL/SDL.h"
 #include <sys/stat.h>
 
 #include <math.h>

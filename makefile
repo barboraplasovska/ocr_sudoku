@@ -1,5 +1,5 @@
 CC = gcc -fsanitize=address
-CFLAGS = -Wall -Wextra -Werrors -std=c99 -O1
+CFLAGS = -Wall -Wextra -Werror -std=c99 -O1
 LDLIBS = `pkg-config --cflags --libs gtk+-3.0 sdl SDL_image`
 
 gui: gui.c image_processing.h digitRecog.h network.h solver.h

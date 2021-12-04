@@ -69,7 +69,7 @@ int** recognizeDigits()
 {
     char boxPath[] = "Boxxy.bmp";
     //printf("justbeforeneural\n");
-    //Network *nn = setupNetwork();
+    Network *nn = setupNetwork();
     //Network *nn = createNetwork(784,20,10);
     //printf("created network\n");
     //loadWeights("weights.txt", nn);
@@ -95,19 +95,19 @@ int** recognizeDigits()
 	    //printf("the char is: %c\n", c);
             if (c == '1') // there is an image to work with
             {
-		        res[x][y] = 1;
+		//        res[x][y] = 1;
                 //printf("digit\n");;
                 SDL_Surface *img = load_image(boxPath);
                 //printf("image w is: %i\n", img->w);
                 //printf("find digit: %i\n", findDigit(nn, img));
-                //res[x][y] = findDigit(nn, img);
+                res[x][y] = findDigit(nn, img);
                 //res[x][y] = 1;
                 SDL_FreeSurface(img);
             }
             else
             {
                 //printf("stuff\n");
-                res[x][y] = 2;
+                res[x][y] = 0;
             }
         }
     }
@@ -150,9 +150,9 @@ void on_remake(GtkButton* button, gpointer userdata)
     button = button;
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size("recognized.bmp", 400, 400, NULL);
     gtk_image_set_from_pixbuf(gui->generatedImage,pixbuf);
-    int x = atoi(gtk_entry_get_text(gui->x_coordinate_input));
-    int y = atoi(gtk_entry_get_text(gui->y_coordinate_input));
-    int digit = atoi(gtk_entry_get_text(gui->correct_digit_input));
+    //int x = atoi(gtk_entry_get_text(gui->x_coordinate_input));
+    //int y = atoi(gtk_entry_get_text(gui->y_coordinate_input));
+    //int digit = atoi(gtk_entry_get_text(gui->correct_digit_input));
     //what do we want to do with this info?
     gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
