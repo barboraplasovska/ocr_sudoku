@@ -107,7 +107,7 @@ int** recognizeDigits()
             else
             {
                 //printf("stuff\n");
-                res[x][y] = 0;
+                res[x][y] = r0;
             }
         }
     }
@@ -141,7 +141,7 @@ void on_check(GtkButton* button,gpointer userdata)
     gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
 
-}
+}r
 
 void on_remake(GtkButton* button, gpointer userdata)
 {   
