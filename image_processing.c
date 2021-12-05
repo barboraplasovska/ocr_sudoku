@@ -515,7 +515,7 @@ void SaveSolvedGrid(int** oldgrid, int** grid,char path[])//SDL_Surface* SaveSol
 		    int numberIndex = grid[j][i] - 1;
                     Uint32 pixel;
 
-                   if (oldgrid[j][i] == 0 && grid[j][i])
+                 /*  if (oldgrid[j][i] == 0 && grid[j][i])
                     {
                         pixel = get_pixel(
 					numbers[numberIndex],
@@ -532,8 +532,8 @@ void SaveSolvedGrid(int** oldgrid, int** grid,char path[])//SDL_Surface* SaveSol
 					y - gridPositionsXY[j]);
 
                        put_pixel(emptyGrid, x, y, pixel);
-		     }
-		 /*  if (oldgrid[j][i] == grid[j][i])
+		     }*/
+		  if (oldgrid[j][i] == grid[j][i] && oldgrid[j][i] != 0)
                     {
                         pixel = get_pixel(
 					numbers[numberIndex],
@@ -550,7 +550,7 @@ void SaveSolvedGrid(int** oldgrid, int** grid,char path[])//SDL_Surface* SaveSol
 					y - gridPositionsXY[j]);
 
                        put_pixel(emptyGrid, x, y, pixel);
-		     }*/
+		     }
 
                 }
             }
