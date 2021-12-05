@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "network.h"
+#include <stdio.h>
 
 // GET NEURON
 Neuron *getNeuron(Layer *l, int neuronId) 
@@ -192,6 +193,8 @@ void calculateLayer(Network *nn, LayerType ltype)
 {
     Layer *l;
     l = getLayer(nn, ltype);
+    
+    printf("check if reached here\n");
 
     for (int i=0;i<l->ncount;i++)
     {
@@ -203,8 +206,11 @@ void calculateLayer(Network *nn, LayerType ltype)
 // FEED FORWARD
 void frontProp(Network *nn)
 {
+    printf("front prop 1\n");
     calculateLayer(nn, HIDDEN);
+    printf("front prop 2\n");
     calculateLayer(nn, OUTPUT);
+    printf("front prop 3\n");
 }
 
 // FEED INPUT

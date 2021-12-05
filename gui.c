@@ -65,27 +65,22 @@ void on_process(GtkButton *button,gpointer userdata)
     gtk_stack_set_visible_child_name(gui->stack,"process_page");
 }
 
-int** recognizeDigits()
+int** recognizeDigits(int** res)
 {
     char boxPath[] = "Boxxy.bmp";
     //printf("justbeforeneural\n");
     Network *nn = setupNetwork();
+    //nn = nn;
     //Network *nn = createNetwork(784,20,10);
     //printf("created network\n");
     //loadWeights("weights.txt", nn);
     FILE *f = fopen("grid", "r");
-    int** res = (int **) malloc(9 * sizeof(int *));
-
-    for (int i = 0; i < 9; i++)
-    {
-        res[i] = (int *) malloc(9 * sizeof(int));
-    }
-
+    
     // boxPath[0] = boxPath[0]; wtf???
 
-    for (int x = 0; x < 9; x++)
+    for (int y = 0; y < 9; y++)
     {
-        for (int y = 0; y < 9; y++)
+        for (int x = 0; x < 9; x++)
         {
 	    //printf("the X is %c, The Y is: %c\n" ,x + '0', y + '0');
             boxPath[3] = x + '0';
@@ -95,22 +90,24 @@ int** recognizeDigits()
 	    //printf("the char is: %c\n", c);
             if (c == '1') // there is an image to work with
             {
-		//        res[x][y] = 1;
-                //printf("digit\n");;
                 SDL_Surface *img = load_image(boxPath);
-                //printf("image w is: %i\n", img->w);
-                //printf("find digit: %i\n", findDigit(nn, img));
-                res[x][y] = findDigit(nn, img);
-                //res[x][y] = 1;
+                res[y][x] = findDigit(nn, img);
+                printf("the digit is: ........................................%i\n", findDigit(nn, img));
+                //res[y][x] = 1;
                 SDL_FreeSurface(img);
             }
             else
             {
                 //printf("stuff\n");
-                res[x][y] = r0;
+                res[y][x] = 0;
             }
         }
     }
+    
+    free(f);
+    shutDownNetwork(nn);
+    
+    printf("before res\n");
 
     return res;
 }
@@ -119,15 +116,21 @@ int** recognizeDigits()
 void on_check(GtkButton* button,gpointer userdata)
 {
     UI* gui = userdata;
-    gui = gui;
     button = button;
 
     //int** oldgrid = FileToMatrix("grid_00");
     //int** grid = FileToMatrix("grid_00.result");
 
     //printf("value is: %i", oldgrid[0][0]);
-
-    int** recGrid = recognizeDigits();
+    // ma
+    int** recGrid = (int **) malloc(9 * sizeof(int *));
+    
+    for (int i = 0; i < 9; i++)
+    {
+        recGrid[i] = (int *) malloc(9 * sizeof(int));
+    }
+    
+    recGrid = recognizeDigits(recGrid);
     //printf("before recognize\n");
     //recognizeDigits();
     //printf("did neural\n");
@@ -140,8 +143,14 @@ void on_check(GtkButton* button,gpointer userdata)
     gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
+    
+    for (int i=0; i< 9; ++i)
+    {
+        free(recGrid[i]);
+    }
 
-}r
+    free(recGrid);
+}
 
 void on_remake(GtkButton* button, gpointer userdata)
 {   
@@ -153,7 +162,7 @@ void on_remake(GtkButton* button, gpointer userdata)
     //int x = atoi(gtk_entry_get_text(gui->x_coordinate_input));
     //int y = atoi(gtk_entry_get_text(gui->y_coordinate_input));
     //int digit = atoi(gtk_entry_get_text(gui->correct_digit_input));
-    //what do we want to do with this info?
+    //write the function (edit grid??)
     gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
@@ -196,7 +205,7 @@ void on_solver(GtkButton * button,gpointer userdata)
     SDL_SaveBMP(gui->image_surface,"solved.bmp"); 
     gtk_image_set_from_file(gui->solvedImage,"solved.bmp"); */
     button = button;
-    recognizeDigits();
+    //recognizeDigits(); uncomment
 
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
 }
@@ -205,9 +214,16 @@ void on_restart(GtkButton *button, gpointer userdata)
 {  
     //printf("on restart\n");
     UI* gui = userdata;
+    button = button;
+    // reset the grid?
+    gtk_image_set_from_pixbuf(gui->processedImage,NULL);
+    gtk_image_set_from_pixbuf(gui->oldImage,NULL);
+    gtk_image_set_from_pixbuf(gui->generatedImage,NULL);
+    gtk_image_set_from_pixbuf(gui->chosenImage,NULL);
+    gtk_image_set_from_pixbuf(gui->solvedImage,NULL);
     gtk_image_set_from_pixbuf(gui->chosenImage,NULL);
     gtk_widget_show(GTK_WIDGET(gui->file_chooser));
-    gtk_widget_hide(GTK_WIDGET(button));
+    gtk_stack_set_visible_child_name(gui->stack,"welcome_page");
 }
 
 
@@ -267,12 +283,12 @@ int main (int argc, char **argv)
         .chosenImage = chosenImage,
         .solvedImage = solvedImage,
         .oldImage = oldImage,
+        .generatedImage = generatedImage,
         .stack = stack,
         .image_surface = image_surface,
         .restart_button = restart_button,
         .check_button = check_button,
         .submit_button = submit_button,
-        .generatedImage = generatedImage,
         .x_coordinate_input = x_coordinate_input,
         .y_coordinate_input = y_coordinate_input,
         .correct_digit_input = correct_digit_input,
