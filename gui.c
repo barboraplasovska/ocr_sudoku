@@ -26,7 +26,7 @@ typedef struct UI
     GtkImage* generatedImage;
     GtkStack *stack;
     SDL_Surface *image_surface;
-    int* grid;
+    int** recGrid;
 }UI;
 
 void on_choose(GtkFileChooser *chooser, gpointer userdata)
@@ -121,33 +121,33 @@ void on_check(GtkButton* button,gpointer userdata)
 
     //printf("value is: %i", oldgrid[0][0]);
     // ma
-    /* int** recGrid = (int **) malloc(9 * sizeof(int *));
+    int** grid = (int **) malloc(9 * sizeof(int *));
     
     for (int i = 0; i < 9; i++)
     {
-        recGrid[i] = (int *) malloc(9 * sizeof(int));
-    } */
+        grid[i] = (int *) malloc(9 * sizeof(int));
+    }
     
-    gui->recGrid = recognizeDigits(gui->recGrid);
+    grid = recognizeDigits(grid);
     //printf("before recognize\n");
     //recognizeDigits();
     //printf("did neural\n");
-    SaveSolvedGrid(gui->recGrid, gui->recGrid,"recognized.bmp");
+    SaveSolvedGrid(grid, grid,"recognized.bmp");
     //printf("after neural\n");
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size(gui->filepath, 400, 400, NULL);
     gtk_image_set_from_pixbuf(gui->oldImage,pixbuf);
     pixbuf = gdk_pixbuf_new_from_file_at_size("recognized.bmp", 400, 400, NULL);
     gtk_image_set_from_pixbuf(gui->generatedImage,pixbuf);
     gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(gui->exit_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
     
-   /*  for (int i=0; i< 9; ++i)
+    for (int i=0; i< 9; ++i)
     {
-        free(recGrid[i]);
+        free(grid[i]);
     }
 
-    free(recGrid); */
+    free(grid);
 }
 
 void on_solver(GtkButton * button,gpointer userdata)
@@ -178,20 +178,20 @@ void on_solver(GtkButton * button,gpointer userdata)
     } 
 
     int** solvedGrid = FileToMatrix(newpath); */
-    solve(gui->recGrid);
-    gui->image_surface = SaveSolvedGrid(matrix, gui->recGrid);
-    SDL_SaveBMP(gui->image_surface,"solved.bmp"); 
-    gtk_image_set_from_file(gui->solvedImage,"solved.bmp");
-
+    /*
+    solve(oldGridP);
+    SaveSolvedGrid(oldGrid, gui->recGrid,"solved.bmp");
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size("solved.mbp", 650,
+		    500, NULL);*/
+//    gtk_image_set_from_pixbuf(gui->solvedImage,pixbuf);
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
-
-    int **grid = *(gui->grid->recGrid)
+    /*
     for (int i=0; i< 9; ++i)
     {
         free(gui->recGrid[i]);
     }
 
-    free(gui->recGrid);
+    free();*/
 }
 
 void on_restart(GtkButton *button, gpointer userdata)
@@ -210,8 +210,8 @@ void on_restart(GtkButton *button, gpointer userdata)
     gtk_stack_set_visible_child_name(gui->stack,"welcome_page");
 }
 
-void on_restart(GtkButton *button, gpointer userdata)
-{  
+void on_quit(GtkButton *button, gpointer userdata)
+{
     UI* gui = userdata;
     button = button;
     gtk_widget_destroy(GTK_WIDGET(gui->window));
@@ -244,7 +244,6 @@ int main (int argc, char **argv)
     GtkFileChooserButton* file_chooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "file_chooser"));
     GtkButton* solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve_button"));
     GtkButton* check_button = GTK_BUTTON(gtk_builder_get_object(builder, "check_button"));
-    GtkButton* submit_button = GTK_BUTTON(gtk_builder_get_object(builder, "submit_button"));;
     GtkButton* restart_button = GTK_BUTTON(gtk_builder_get_object(builder, "restart_button"));
     GtkButton* exit_button = GTK_BUTTON(gtk_builder_get_object(builder, "exit_button"));
     GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(builder, "processedImage"));
@@ -252,13 +251,6 @@ int main (int argc, char **argv)
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(builder, "solvedImage"));
     GtkImage* oldImage = GTK_IMAGE(gtk_builder_get_object(builder, "oldImage"));
     GtkImage* generatedImage = GTK_IMAGE(gtk_builder_get_object(builder, "generatedImage"));
-
-    int** recGrid = (int **) malloc(9 * sizeof(int *));
-    
-    for (int i = 0; i < 9; i++)
-    {
-        recGrid[i] = (int *) malloc(9 * sizeof(int));
-    }
 
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
 
@@ -284,7 +276,6 @@ int main (int argc, char **argv)
         .restart_button = restart_button,
         .check_button = check_button,
         .exit_button = exit_button,
-        .recGrid = recGrid,
 
     };
 
@@ -294,7 +285,7 @@ int main (int argc, char **argv)
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
     g_signal_connect(check_button, "clicked", G_CALLBACK(on_check), &gui);
     g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart), &gui);
-    g_signal_connect(exit_button), "clicked", G_CALLBACK(on_exit), &gui);
+    g_signal_connect(exit_button, "clicked", G_CALLBACK(on_quit), &gui);
     g_signal_connect(file_chooser, "selection-changed", G_CALLBACK(on_choose), &gui);
 
 
