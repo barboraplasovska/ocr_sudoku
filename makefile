@@ -1,4 +1,4 @@
-CC = gcc -g -fsanitize=address
+CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O1
 LDLIBS = `pkg-config --cflags --libs gtk+-3.0 sdl SDL_image`
 

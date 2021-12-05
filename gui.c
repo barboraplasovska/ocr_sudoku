@@ -267,7 +267,7 @@ int main (int argc, char **argv)
 
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
 
-    SDL_Surface *image_surface = load_image("image_01.jpeg");
+    SDL_Surface *image_surface = load_image("images/image_01.jpeg");
     char* filepath = "";
     char* filename = "";
 
