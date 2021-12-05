@@ -24,3 +24,7 @@ clean:
 	${RM} -rf *.dSYM
 	${RM} -rf *.bmp
 	${RM} gui
+	${RM} -f *.result
+	${RM} grid*
+	${RM} test
+	${RM} unsolvedGrid
