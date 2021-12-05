@@ -15,6 +15,8 @@ double getBWPixel(SDL_Surface *surface, unsigned x, unsigned y)
     SDL_GetRGB(pixel, surface->format, &r, &g, &b);
             
     if(r == 255)
+        r = 0;
+    else
         r = 1;
     return r;
 }
@@ -27,9 +29,9 @@ Vector *getVectorFromImage(SDL_Surface *img)
 
     v->size = 28*28;
     size_t i = 0;
-    for (size_t x = 0; x < 28; x++)
+    for (size_t y  = 0; y < 28; y++)
     {
-        for (size_t y = 0; y < 28; y++)
+        for (size_t x = 0; x < 28; x++)
         {
             v->vals[i] = getBWPixel(img, x, y);
             i++;
@@ -112,11 +114,9 @@ void loadWeights(char *filePath, Network *nn)
 
     while ((read = getline(&line, &len, fptr)) != -1)
     {
-        //printf("%d: %s", i, line);
-        i++;
         if (line[0] == '*')
         {
-			if (layInd < 2)
+	    if (layInd < 2)
             	layInd++;
             neuInd = 0;
             weInd = 0;
