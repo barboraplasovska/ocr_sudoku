@@ -16,8 +16,8 @@ typedef struct UI
     GtkButton* solve_button;
     GtkButton* process_button;
     GtkButton* check_button;
-    GtkButton* submit_button;
     GtkButton* restart_button;
+    GtkButton* exit_button;
     GtkFileChooserButton* file_chooser;
     GtkImage* processedImage;
     GtkImage* chosenImage;
@@ -26,9 +26,7 @@ typedef struct UI
     GtkImage* generatedImage;
     GtkStack *stack;
     SDL_Surface *image_surface;
-    GtkEntry* x_coordinate_input;
-    GtkEntry* y_coordinate_input;
-    GtkEntry* correct_digit_input;
+    int* grid;
 }UI;
 
 void on_choose(GtkFileChooser *chooser, gpointer userdata)
@@ -123,18 +121,18 @@ void on_check(GtkButton* button,gpointer userdata)
 
     //printf("value is: %i", oldgrid[0][0]);
     // ma
-    int** recGrid = (int **) malloc(9 * sizeof(int *));
+    /* int** recGrid = (int **) malloc(9 * sizeof(int *));
     
     for (int i = 0; i < 9; i++)
     {
         recGrid[i] = (int *) malloc(9 * sizeof(int));
-    }
+    } */
     
-    recGrid = recognizeDigits(recGrid);
+    gui->recGrid = recognizeDigits(gui->recGrid);
     //printf("before recognize\n");
     //recognizeDigits();
     //printf("did neural\n");
-    SaveSolvedGrid(recGrid, recGrid,"recognized.bmp");
+    SaveSolvedGrid(gui->recGrid, gui->recGrid,"recognized.bmp");
     //printf("after neural\n");
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size(gui->filepath, 400, 400, NULL);
     gtk_image_set_from_pixbuf(gui->oldImage,pixbuf);
@@ -144,40 +142,19 @@ void on_check(GtkButton* button,gpointer userdata)
     gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
     gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
     
-    for (int i=0; i< 9; ++i)
+   /*  for (int i=0; i< 9; ++i)
     {
         free(recGrid[i]);
     }
 
-    free(recGrid);
-}
-
-void on_remake(GtkButton* button, gpointer userdata)
-{   
-	//printf("on remake\n");
-    UI* gui = userdata;
-    button = button;
-    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_size("recognized.bmp", 400, 400, NULL);
-    gtk_image_set_from_pixbuf(gui->generatedImage,pixbuf);
-    //int x = atoi(gtk_entry_get_text(gui->x_coordinate_input));
-    //int y = atoi(gtk_entry_get_text(gui->y_coordinate_input));
-    //int digit = atoi(gtk_entry_get_text(gui->correct_digit_input));
-    //write the function (edit grid??)
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->submit_button),TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(gui->solve_button),TRUE);
-    gtk_stack_set_visible_child_name(gui->stack,"check_digits_page");
+    free(recGrid); */
 }
 
 void on_solver(GtkButton * button,gpointer userdata)
 {
-	//printf("on solve\n");
-    //get initial grid
-    //get solved grid (neural network)
     UI* gui = userdata;
-    //open solve
-    //solver code
-    /* int** matrix = FileToMatrix(gui->filepath);
-
+    button = button;
+/*     int** matrix = FileToMatrix(gui->filepath);
     char newpath[8] = ".result";
     char str3[100];
   
@@ -198,16 +175,23 @@ void on_solver(GtkButton * button,gpointer userdata)
         str3[j] = newpath[i];
         i++;
         j++;
-    }
+    } 
 
-    int** solvedGrid = FileToMatrix(newpath);
-    gui->image_surface = SaveSolvedGrid(matrix, solvedGrid);
+    int** solvedGrid = FileToMatrix(newpath); */
+    solve(gui->recGrid);
+    gui->image_surface = SaveSolvedGrid(matrix, gui->recGrid);
     SDL_SaveBMP(gui->image_surface,"solved.bmp"); 
-    gtk_image_set_from_file(gui->solvedImage,"solved.bmp"); */
-    button = button;
-    //recognizeDigits(); uncomment
+    gtk_image_set_from_file(gui->solvedImage,"solved.bmp");
 
     gtk_stack_set_visible_child_name(gui->stack,"solve_page");
+
+    int **grid = *(gui->grid->recGrid)
+    for (int i=0; i< 9; ++i)
+    {
+        free(gui->recGrid[i]);
+    }
+
+    free(gui->recGrid);
 }
 
 void on_restart(GtkButton *button, gpointer userdata)
@@ -226,6 +210,12 @@ void on_restart(GtkButton *button, gpointer userdata)
     gtk_stack_set_visible_child_name(gui->stack,"welcome_page");
 }
 
+void on_restart(GtkButton *button, gpointer userdata)
+{  
+    UI* gui = userdata;
+    button = button;
+    gtk_widget_destroy(GTK_WIDGET(gui->window));
+}
 
 int main (int argc, char **argv)
 {
@@ -256,14 +246,19 @@ int main (int argc, char **argv)
     GtkButton* check_button = GTK_BUTTON(gtk_builder_get_object(builder, "check_button"));
     GtkButton* submit_button = GTK_BUTTON(gtk_builder_get_object(builder, "submit_button"));;
     GtkButton* restart_button = GTK_BUTTON(gtk_builder_get_object(builder, "restart_button"));
+    GtkButton* exit_button = GTK_BUTTON(gtk_builder_get_object(builder, "exit_button"));
     GtkImage* processedImage = GTK_IMAGE(gtk_builder_get_object(builder, "processedImage"));
     GtkImage* chosenImage = GTK_IMAGE(gtk_builder_get_object(builder, "chosenImage"));
     GtkImage* solvedImage = GTK_IMAGE(gtk_builder_get_object(builder, "solvedImage"));
     GtkImage* oldImage = GTK_IMAGE(gtk_builder_get_object(builder, "oldImage"));
     GtkImage* generatedImage = GTK_IMAGE(gtk_builder_get_object(builder, "generatedImage"));
-    GtkEntry* x_coordinate_input = GTK_ENTRY(gtk_builder_get_object(builder, "x_coordinate_input"));
-    GtkEntry* y_coordinate_input = GTK_ENTRY(gtk_builder_get_object(builder, "y_coordinate_input"));
-    GtkEntry* correct_digit_input = GTK_ENTRY(gtk_builder_get_object(builder, "correct_digit_input"));
+
+    int** recGrid = (int **) malloc(9 * sizeof(int *));
+    
+    for (int i = 0; i < 9; i++)
+    {
+        recGrid[i] = (int *) malloc(9 * sizeof(int));
+    }
 
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
 
@@ -288,10 +283,8 @@ int main (int argc, char **argv)
         .image_surface = image_surface,
         .restart_button = restart_button,
         .check_button = check_button,
-        .submit_button = submit_button,
-        .x_coordinate_input = x_coordinate_input,
-        .y_coordinate_input = y_coordinate_input,
-        .correct_digit_input = correct_digit_input,
+        .exit_button = exit_button,
+        .recGrid = recGrid,
 
     };
 
@@ -300,8 +293,8 @@ int main (int argc, char **argv)
     g_signal_connect(process_button, "clicked", G_CALLBACK(on_process), &gui);
     g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solver), &gui);
     g_signal_connect(check_button, "clicked", G_CALLBACK(on_check), &gui);
-    g_signal_connect(submit_button, "clicked", G_CALLBACK(on_remake), &gui);
     g_signal_connect(restart_button, "clicked", G_CALLBACK(on_restart), &gui);
+    g_signal_connect(exit_button), "clicked", G_CALLBACK(on_exit), &gui);
     g_signal_connect(file_chooser, "selection-changed", G_CALLBACK(on_choose), &gui);
 
 
