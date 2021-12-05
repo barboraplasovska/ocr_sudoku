@@ -4,6 +4,8 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkWindow" id="window">
     <property name="name">window</property>
+    <property name="width-request">1100</property>
+    <property name="height-request">650</property>
     <property name="can-focus">False</property>
     <child>
       <object class="GtkFixed" id="fix1">
@@ -117,14 +119,14 @@
                 <child>
                   <object class="GtkImage" id="oldImage">
                     <property name="name">oldImage</property>
-                    <property name="width-request">400</property>
-                    <property name="height-request">400</property>
+                    <property name="width-request">460</property>
+                    <property name="height-request">460</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="stock">gtk-missing-image</property>
                   </object>
                   <packing>
-                    <property name="x">80</property>
+                    <property name="x">60</property>
                     <property name="y">30</property>
                   </packing>
                 </child>
@@ -142,62 +144,17 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkImage" id="generated_image">
-                    <property name="name">generated_image</property>
-                    <property name="width-request">400</property>
-                    <property name="height-request">400</property>
+                  <object class="GtkImage" id="generatedImage">
+                    <property name="name">generatedImage</property>
+                    <property name="width-request">460</property>
+                    <property name="height-request">460</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="stock">gtk-missing-image</property>
                   </object>
                   <packing>
-                    <property name="x">620</property>
+                    <property name="x">580</property>
                     <property name="y">30</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="x_coordinate_input">
-                    <property name="name">x_coordinate_input</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="x">200</property>
-                    <property name="y">491</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="y_coordinate_input">
-                    <property name="name">y_coordinate_input</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="x">480</property>
-                    <property name="y">491</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="correct_digit_input">
-                    <property name="name">correct_digit_input</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="x">760</property>
-                    <property name="y">491</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton">
-                    <property name="label" translatable="yes"> ok  </property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                  </object>
-                  <packing>
-                    <property name="x">1000</property>
-                    <property name="y">491</property>
                   </packing>
                 </child>
               </object>
@@ -235,7 +192,20 @@
                     <property name="receives-default">True</property>
                   </object>
                   <packing>
-                    <property name="x">750</property>
+                    <property name="x">900</property>
+                    <property name="y">550</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="exit_button">
+                    <property name="label" translatable="yes">exit</property>
+                    <property name="name">exit_button</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">1000</property>
                     <property name="y">550</property>
                   </packing>
                 </child>
