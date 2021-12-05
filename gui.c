@@ -106,7 +106,7 @@ int** recognizeDigits(int** res)
             {
                 SDL_Surface *img = load_image(boxPath);
                 res[y][x] = findDigit(nn, img);
-                printf("the digit is: ........................................%i\n", findDigit(nn, img));
+                printf("the digit is: ............%i\n", findDigit(nn, img));
                 //res[y][x] = 1;
                 SDL_FreeSurface(img);
 		fprintf(ff,"%i",res[y][x]);
@@ -623,6 +623,7 @@ void on_quit(GtkButton *button, gpointer userdata)
     UI* gui = userdata;
     button = button;
     gtk_widget_destroy(GTK_WIDGET(gui->window));
+    printf("\e[1;1H\e[2J");
 }
 
 int main (int argc, char **argv)
