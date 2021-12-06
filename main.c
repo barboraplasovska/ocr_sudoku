@@ -3,12 +3,10 @@
 #endif // defines getDelim
 
 #include <stdlib.h>
-//#include </opt/homebrew/include/SDL/SDL.h>
-//#include </opt/homebrew/include/SDL/SDL_image.h>
-//#include <SDL/SDL.h>
-//#include <SDL/SDL_image.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include "network.h"
-//#include "image_processing.h" //not sure it should be here
+#include "image_processing.h"
 #include "screen.h" 
 #include "mnist-utils.h"
 #include "mnist-stats.h"  
@@ -30,15 +28,7 @@ Vector *getVectorFromImage(MNIST_Image *img){
     return v;
 }
 
-
-
-
-/**
- * @brief Training the network by processing the MNIST training set and updating the weights
- * @param nn A pointer to the NN
- */
-
-void trainNetwork(Network *nn){
+void trainWithMnist(Network *nn){
     
     // open MNIST files
     FILE *imageFile, *labelFile;
@@ -80,15 +70,7 @@ void trainNetwork(Network *nn){
     
 }
 
-
-
-
-/**
- * @brief Testing the trained network by processing the MNIST testing set WITHOUT updating weights
- * @param nn A pointer to the NN
- */
-
-void testNetwork(Network *nn){
+void testWithMnist(Network *nn){
     
     // open MNIST files
     FILE *imageFile, *labelFile;
@@ -127,7 +109,6 @@ void testNetwork(Network *nn){
     
 }
 
-/*
 double getBWPixel(SDL_Surface *surface, unsigned x, unsigned y)
 {
     Uint32 pixel = get_pixel(surface, x, y);
@@ -158,7 +139,7 @@ Vector *getVectorFromImage(SDL_Surface *img)
         }
     }
     return v;
-}*/
+}
 
 // SAVE WEIGHTS
 void saveWeights(Network *nn)
@@ -278,7 +259,6 @@ void loadWeights(char *filePath, Network *nn)
     }
 }
 
-/*
 // FIND DIGIT
 int findDigit(Network *nn, SDL_Surface *image)
 {
@@ -439,7 +419,7 @@ void test(Network *nn)
             }
         }
     }
-}*/
+}
 
 // MAIN
 int main()
@@ -454,14 +434,17 @@ int main()
     // Create neural network using a manually allocated memory space
     Network *nn = createNetwork(28*28, 20, 10);
 
-    // load weights
+    // load weights (when training is done and we only test)
     //loadWeights("weights.txt", nn);
 
-    // for training
-    //train(nn);
-    trainNetwork(nn); // with mnist
-    //test(nn);
-    testNetwork(nn); // with mnist
+    // TRAINING
+    // train with computer written digits
+    // train(nn);
+    // test(nn);
+
+    // train with mnist
+    trainWithMnist(nn);
+    testWithMnist(nn);
 
     saveWeights(nn);
     

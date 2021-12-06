@@ -1,8 +1,6 @@
 #ifndef IMAGE_PROCESSING_H
 #define IMAGE_PROCESSING_H
 
-//#include </opt/homebrew/include/SDL/SDL.h>
-//#include </opt/homebrew/include/SDL/SDL_image.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 

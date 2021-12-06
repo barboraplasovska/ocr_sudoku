@@ -1,8 +1,5 @@
 #include <err.h>
 #include <stdio.h>
-
-//#include </opt/homebrew/include/SDL/SDL.h>
-//#include </opt/homebrew/include/SDL/SDL_image.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <sys/stat.h>
@@ -14,7 +11,6 @@
 #ifndef M_PI
 #define M_PI 3.1415926535897932
 #endif
-//#include <SDL_gfx.h>
 
 
 void init_sdl()
