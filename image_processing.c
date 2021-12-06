@@ -1,8 +1,10 @@
 #include <err.h>
 #include <stdio.h>
 
-#include "SDL/SDL_image.h"
-#include "SDL/SDL.h"
+//#include </opt/homebrew/include/SDL/SDL.h>
+//#include </opt/homebrew/include/SDL/SDL_image.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <sys/stat.h>
 
 #include <math.h>
@@ -204,7 +206,7 @@ int AdaptiveThreshold(SDL_Surface *surface)
     return sum / (width * height);
 }
 
-SDL_Surface ApplyBlackAndWhiteAdaptiveMedian(
+SDL_Surface* ApplyBlackAndWhiteAdaptiveMedian(
 		SDL_Surface *surface, int filter_size, int C) // filter size is 3 so 3x3
 {
     int height = surface->h;
@@ -267,10 +269,10 @@ SDL_Surface ApplyBlackAndWhiteAdaptiveMedian(
 
     free(window);
 
-    return *filteredImage;
+    return filteredImage;
 }
 
-SDL_Surface ApplyMeanFilter(SDL_Surface *surface, int filter_size) // filter size is 3 so 3x3
+SDL_Surface* ApplyMeanFilter(SDL_Surface *surface, int filter_size) // filter size is 3 so 3x3
 {
     int height = surface->h;
     int width = surface->w;
@@ -318,7 +320,7 @@ SDL_Surface ApplyMeanFilter(SDL_Surface *surface, int filter_size) // filter siz
 
     free(window);
 
-    return *filteredImage;
+    return filteredImage;
 }
 
 void InvertColors(SDL_Surface *surface)
@@ -353,7 +355,7 @@ void InvertColors(SDL_Surface *surface)
     }
 }
 
-SDL_Surface RotateSurface(SDL_Surface *surface, double angleInDegrees)
+SDL_Surface* RotateSurface(SDL_Surface *surface, double angleInDegrees)
 {
     double angle = angleInDegrees * (M_PI / 180.0);
     double cosine = cos(angle);
@@ -369,6 +371,7 @@ SDL_Surface RotateSurface(SDL_Surface *surface, double angleInDegrees)
         (0, new_width, new_height, 32, 0, 0, 0, 0);
 
     Uint32 pixelColor = SDL_MapRGB(rotated_surface->format, 255, 255, 255);
+
     SDL_FillRect(rotated_surface, NULL, pixelColor);
 
     int original_center_height = round(((height + 1) / 2) - 1);
@@ -398,7 +401,8 @@ SDL_Surface RotateSurface(SDL_Surface *surface, double angleInDegrees)
             }
         }
     }
-    return *rotated_surface;
+
+    return rotated_surface;
 }
 
 static inline
@@ -512,46 +516,20 @@ void SaveSolvedGrid(int** oldgrid, int** grid,char path[])//SDL_Surface* SaveSol
             {
                 for (int y = gridPositionsXY[j]; y < gridPositionsXYMAX[j]; y++)
                 {
-		    int numberIndex = grid[j][i] - 1;
+		            int numberIndex = grid[j][i] - 1;
                     Uint32 pixel;
-
-                 /*  if (oldgrid[j][i] == 0 && grid[j][i])
-                    {
+                    if (oldgrid[j][i] == 0)
                         pixel = get_pixel(
 					numbers[numberIndex],
 					x - gridPositionsXY[i],
 					y - gridPositionsXY[j]);
-					
-			put_pixel(emptyGrid, x, y, pixel);
-		     }
-                    else if(oldgrid[j][i] != 0 && grid[j][i] != 0)
-                    {
+                    else
                         pixel = get_pixel(
 					numbersSolved[numberIndex],
 					x - gridPositionsXY[i],
 					y - gridPositionsXY[j]);
-
-                       put_pixel(emptyGrid, x, y, pixel);
-		     }*/
-		  if (oldgrid[j][i] == grid[j][i] && oldgrid[j][i] != 0)
-                    {
-                        pixel = get_pixel(
-					numbers[numberIndex],
-					x - gridPositionsXY[i],
-					y - gridPositionsXY[j]);
-
-			put_pixel(emptyGrid, x, y, pixel);
-		     }
-                    else if(oldgrid[j][i] == 0 && grid[j][i] != 0)
-                    {
-                        pixel = get_pixel(
-					numbersSolved[numberIndex],
-					x - gridPositionsXY[i],
-					y - gridPositionsXY[j]);
-
-                       put_pixel(emptyGrid, x, y, pixel);
-		     }
-
+                    
+                    put_pixel(emptyGrid, x, y, pixel);
                 }
             }
         }
@@ -579,7 +557,6 @@ void loop1 (SDL_Surface *surface,
     int possible = *possiblet;
     int fail = *failt;
     int i2 = *i2t;
-    
     while (middle + i2<width-1 && possible == 0 && y>3 && y<height-3)  
     {
         Uint32 pixel = get_pixel(surface, middle+i2+fail, y);
@@ -962,10 +939,8 @@ int mod(SDL_Surface *surface, SDL_Surface *img, int x, int xx,int y, int yy)
         i2=0;
         i=i+1;
     }
-    //printf("amount is: %i", amount);
-    if (amount< 15)
+    if (amount<15)
     {
-        //printf("LESS\n");
         return 0;
     }
     return 1;
@@ -1261,7 +1236,6 @@ void Getboxes(SDL_Surface *surface, int x1, int y1, int x2, int y2,
             //grid[i][i2] = num;
             fprintf(f,"%i",num);
             SDL_SaveBMP(img,name);
-            free(img);
             i=i+1;
         }
         i=0;
@@ -1270,7 +1244,7 @@ void Getboxes(SDL_Surface *surface, int x1, int y1, int x2, int y2,
     fclose(f);
 }
 
-SDL_Surface FindCorners(
+SDL_Surface* FindCorners(
 	SDL_Surface *surface, char name[], int foundCorners, int getBoxes)
 
 {
@@ -1440,8 +1414,8 @@ SDL_Surface FindCorners(
         // printf("the angle is: %lf\n", angleInDegrees);
         if ((angleInDegrees < -5 || angleInDegrees > 5) && getBoxes != 1)
         {
-            *surface = RotateSurface(surface, angleInDegrees);
-            *surface = ApplyMeanFilter(surface, 3);
+            surface = RotateSurface(surface, angleInDegrees);
+            surface = ApplyMeanFilter(surface, 3);
         }
 
         FindCorners(surface, name, 1, getBoxes);
@@ -1451,8 +1425,7 @@ SDL_Surface FindCorners(
     {
         Getboxes(surface, x1, y1,x2, y2, x3, y3, x4, y4, name);
     }
-    
-    return *surface;
+    return surface;
 }
 
 static inline
@@ -1512,10 +1485,10 @@ void ApplyAllFilters(SDL_Surface *surface,char name[])
     //printf("it be: %i\n",AdaptiveThreshold(surface));
     ApplyGreyscale(surface);
     //SDL_SaveBMP(surface, folderName1);
-    *surface = ApplyBlackAndWhiteAdaptiveMedian(surface, 3, -35);
+    surface = ApplyBlackAndWhiteAdaptiveMedian(surface, 3, -35);
     //SDL_SaveBMP(surface, folderName2);
-    *surface = FindCorners(surface, name, 0, 0);
-    *surface = FindCorners(surface, name, 0, 1);
+    surface = FindCorners(surface, name, 0, 0);
+    surface = FindCorners(surface, name, 0, 1);
     //SDL_SaveBMP(surface, folderName3);
 }
 

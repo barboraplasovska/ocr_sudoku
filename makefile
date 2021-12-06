@@ -1,30 +1,28 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O1
-LDLIBS = `pkg-config --cflags --libs gtk+-3.0 sdl SDL_image`
+#LDLIBS = `pkg-config --cflags --libs sdl SDL_image`
 
-gui: gui.c
-	$(CC) $(CFLAGS) -o gui gui.c digitRecog.c network.c image_processing.c $(LDLIBS) -lm -Iutil
+main: main.c mnist-stats.o mnist-utils.o screen.o network.o
+	$(CC) $(CFLAGS) -o main main.c mnist-stats.o mnist-utils.o screen.o network.o -lm -Iutil
 
-image_processing.o: image_processing.c
-	$(CC) $(CFLAGS) -c image_processing.c $(LDLIBS)
+image_processing.o: image_processing.c image_processing.h
+	$(CC) $(CFLAGS) -c image_processing.c image_processing.h $(LDLIBS)
 
-digitRecog.o: digitRecog.c network.o
-	$(CC) $(CFLAGS) -c digitRecog.c network.o
+mnist-stats.o: mnist-stats.c mnist-stats.h
+	$(CC) $(CFLAGS) -c mnist-stats.c mnist-stats.h
 
-network.o: network.c
-	$(CC) $(CFLAGS) -c network.c
+mnist-utils.o: mnist-utils.c mnist-utils.h
+	$(CC) $(CFLAGS) -c mnist-utils.c mnist-utils.h
 
-#solver.o: solver.c
-#	$(CC) $(CFLAGS) -c solver.c
+screen.o: screen.c screen.h
+	$(CC) $(CFLAGS) -c screen.c screen.h
+
+network.o: network.c network.h
+	$(CC) $(CFLAGS) -c network.c network.h
 
 clean:
 	${RM} -f *.o
 	${RM} -f *.gch
 	${RM} -f *.out
 	${RM} -rf *.dSYM
-	${RM} -rf *.bmp
-	${RM} gui
-	${RM} -f *.result
-	${RM} grid*
-	${RM} test
-	${RM} unsolvedGrid
+	${RM} main
