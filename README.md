@@ -1,7 +1,5 @@
 # OCR SUDOKU
 
-User manual
-
 ## How to use our application?
 
 1. Open a terminal
