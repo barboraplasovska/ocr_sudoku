@@ -4,8 +4,8 @@
 
 1. Open a terminal
 2. Open the ocr_sudoku directory
-3. Run the command "make gui"
-4. Run the resulting executable ./gui
+3. Run the command ```make gui```
+4. Run the resulting executable ```./gui```
 
 Now, the application will be open on the *Welcome* page.
 1. Use the file chooser to select the image of the sudoke to solve
